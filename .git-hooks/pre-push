@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Git pre-push hook для автоматического деплоя
+# Запускается перед каждым git push
+
+echo "🚀 Triggering auto-deploy on server..."
+
+# Конфигурация (измените на свои значения)
+SERVER_USER="root"
+SERVER_HOST="your-server-ip"
+SERVER_PATH="/root/kupi_slona"
+
+# SSH команда для деплоя
+ssh $SERVER_USER@$SERVER_HOST "cd $SERVER_PATH && ./auto-deploy.sh"
+
+if [ $? -eq 0 ]; then
+    echo "✅ Auto-deploy completed successfully!"
+else
+    echo "❌ Auto-deploy failed!"
+    exit 1
+fi

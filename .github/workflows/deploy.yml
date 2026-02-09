@@ -1,0 +1,25 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd ~/kupi_slona
+          git pull origin main
+          docker-compose -f docker-compose.npm-simple.yml build
+          docker-compose -f docker-compose.npm-simple.yml up -d
+          docker-compose -f docker-compose.npm-simple.yml exec -T web python manage.py migrate
+          docker-compose -f docker-compose.npm-simple.yml exec -T web python manage.py collectstatic --noinput
+          echo "✅ Deployment completed!"
