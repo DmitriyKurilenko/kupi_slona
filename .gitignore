@@ -91,3 +91,4 @@ yarn-error.log*
 .env.example
 test_names.py
 note
+.env.slon.prvms.ru
