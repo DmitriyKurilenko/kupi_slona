@@ -1,0 +1,197 @@
+version: '3.9'
+
+# Kupi Slona с Traefik
+# Использование: docker-compose -f docker-compose.traefik.yml up -d
+
+services:
+  # Traefik - современный reverse proxy
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      # API и Dashboard
+      - "--api.dashboard=true"
+      - "--api.insecure=false"  # Dashboard через HTTPS
+
+      # Docker provider
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik-public"
+
+      # Entrypoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+
+      # Автоматический редирект HTTP -> HTTPS
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+
+      # Let's Encrypt
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@prvms.ru}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+
+      # Логирование
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_letsencrypt:/letsencrypt
+    networks:
+      - traefik-public
+    labels:
+      # Dashboard доступен на traefik.prvms.ru
+      - "traefik.enable=true"
+
+      # HTTP роутер (редирект на HTTPS)
+      - "traefik.http.routers.traefik-dashboard-http.rule=Host(`traefik.prvms.ru`)"
+      - "traefik.http.routers.traefik-dashboard-http.entrypoints=web"
+
+      # HTTPS роутер
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.prvms.ru`)"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+
+      # Basic Auth для dashboard (user: admin, pass: admin)
+      # Сгенерируйте свой: echo $(htpasswd -nb admin yourpassword) | sed -e s/\\$/\\$\\$/g
+      - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$apr1$$8EVjn/nj$$GiLUZqcbueTFeD23SuB6x0"
+    restart: unless-stopped
+
+  # PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: kupi_slona_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=elephant_shop
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: kupi_slona_redis
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # Django + Gunicorn
+  web:
+    build: .
+    container_name: kupi_slona_web
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120 --access-logfile - --error-logfile -
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+      - traefik-public
+    labels:
+      # Включить Traefik для этого контейнера
+      - "traefik.enable=true"
+
+      # Указать сеть (если контейнер в нескольких сетях)
+      - "traefik.docker.network=traefik-public"
+
+      # HTTP роутер (автоматически редиректит на HTTPS)
+      - "traefik.http.routers.kupi-slona-http.rule=Host(`slon.prvms.ru`)"
+      - "traefik.http.routers.kupi-slona-http.entrypoints=web"
+
+      # HTTPS роутер
+      - "traefik.http.routers.kupi-slona.rule=Host(`slon.prvms.ru`)"
+      - "traefik.http.routers.kupi-slona.entrypoints=websecure"
+      - "traefik.http.routers.kupi-slona.tls.certresolver=letsencrypt"
+
+      # Сервис и порт
+      - "traefik.http.services.kupi-slona.loadbalancer.server.port=8000"
+
+      # Middlewares
+      - "traefik.http.routers.kupi-slona.middlewares=kupi-slona-headers,kupi-slona-compress"
+
+      # Security headers
+      - "traefik.http.middlewares.kupi-slona-headers.headers.customResponseHeaders.X-Frame-Options=SAMEORIGIN"
+      - "traefik.http.middlewares.kupi-slona-headers.headers.customResponseHeaders.X-Content-Type-Options=nosniff"
+      - "traefik.http.middlewares.kupi-slona-headers.headers.customResponseHeaders.X-XSS-Protection=1; mode=block"
+
+      # Compression
+      - "traefik.http.middlewares.kupi-slona-compress.compress=true"
+    restart: unless-stopped
+
+  # Nginx для static/media (опционально)
+  nginx:
+    image: nginx:alpine
+    container_name: kupi_slona_nginx
+    volumes:
+      - ./nginx-static.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+
+      # Static files на /static/
+      - "traefik.http.routers.kupi-slona-static.rule=Host(`slon.prvms.ru`) && PathPrefix(`/static/`, `/media/`)"
+      - "traefik.http.routers.kupi-slona-static.entrypoints=websecure"
+      - "traefik.http.routers.kupi-slona-static.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.kupi-slona-static.priority=100"  # Выше приоритет чем у web
+      - "traefik.http.services.kupi-slona-static.loadbalancer.server.port=80"
+    restart: unless-stopped
+
+  # Celery Worker
+  celery_worker:
+    build: .
+    container_name: kupi_slona_celery
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - media_volume:/app/media
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  traefik_letsencrypt:
+
+networks:
+  backend:
+    driver: bridge
+  traefik-public:
+    driver: bridge
