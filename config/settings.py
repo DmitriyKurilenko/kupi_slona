@@ -207,9 +207,15 @@ SOCIALACCOUNT_PROVIDERS = {
 ACCOUNT_ADAPTER = 'apps.accounts.adapters.AccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'apps.accounts.adapters.SocialAccountAdapter'
 
+# Reverse Proxy Settings (NPM, Traefik, etc)
+# Trust X-Forwarded-Proto header from reverse proxy
+USE_X_FORWARDED_HOST = env.bool('USE_X_FORWARDED_HOST', default=True)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Security settings
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    # Let reverse proxy handle SSL redirect, not Django
+    SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=False)
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
