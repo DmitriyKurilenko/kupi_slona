@@ -57,14 +57,14 @@ sleep 5
 
 # 7. Миграции
 echo -e "${YELLOW}🗄️  Running migrations...${NC}"
-docker-compose -f $COMPOSE_FILE exec -T web python manage.py migrate --noinput || {
+docker exec kupi_slona_web python manage.py migrate --noinput || {
     echo -e "${RED}❌ Migrations failed!${NC}"
     exit 1
 }
 
 # 8. Сборка статики
 echo -e "${YELLOW}📦 Collecting static files...${NC}"
-docker-compose -f $COMPOSE_FILE exec -T web python manage.py collectstatic --noinput || {
+docker exec kupi_slona_web python manage.py collectstatic --noinput || {
     echo -e "${RED}❌ Collectstatic failed!${NC}"
     exit 1
 }

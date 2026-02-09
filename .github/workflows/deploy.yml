@@ -20,6 +20,7 @@ jobs:
           git pull origin main
           docker-compose -f docker-compose.npm-simple.yml build
           docker-compose -f docker-compose.npm-simple.yml up -d
-          docker-compose -f docker-compose.npm-simple.yml exec -T web python manage.py migrate
-          docker-compose -f docker-compose.npm-simple.yml exec -T web python manage.py collectstatic --noinput
+          sleep 5
+          docker exec kupi_slona_web python manage.py migrate --noinput
+          docker exec kupi_slona_web python manage.py collectstatic --noinput
           echo "✅ Deployment completed!"
