@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8" x-data="dashboard()" x-init="loadData()">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Мои слоны</h1>
+                <p class="mt-1 text-gray-600">Добро пожаловать, {{ user.username }}!</p>
+            </div>
+            <button @click="showPurchase = !showPurchase" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span x-text="showPurchase ? 'Скрыть форму' : 'Купить ещё слона'"></span>
+            </button>
+        </div>
+
+        <!-- Purchase Form -->
+        <div x-show="showPurchase" x-cloak x-transition class="mb-8">
+            <div class="rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="mb-6 text-2xl font-bold text-gray-900">Выберите тариф</h2>
+
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <!-- Basic Plan -->
+                    <div class="rounded-2xl border-2 border-gray-200 bg-white p-6">
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold text-gray-900">Базовый</h3>
+                            <p class="mt-1 text-sm text-gray-600">Случайный уникальный цвет</p>
+                            <div class="mt-4">
+                                <span class="text-4xl font-bold tracking-tight text-gray-900">100 руб.</span>
+                            </div>
+                        </div>
+
+                        <ul class="mb-6 space-y-3">
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-gray-700">Случайный уникальный RGB цвет</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-gray-700">HD изображение 1500x1500px</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-gray-700">Возможность дарить друзьям</span>
+                            </li>
+                        </ul>
+
+                        <button @click="buyBasic()" :disabled="purchaseLoading" class="w-full rounded-xl bg-gray-900 px-6 py-3 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50">
+                            <span x-show="!purchaseLoading">Выбрать тариф</span>
+                            <span x-show="purchaseLoading">Загрузка...</span>
+                        </button>
+                    </div>
+
+                    <!-- Advanced Plan -->
+                    <div class="rounded-2xl border-2 border-indigo-500 bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white">
+                        <div class="mb-6">
+                            <div class="mb-4 inline-flex rounded-full bg-yellow-400 px-3 py-1 text-xs font-semibold text-gray-900">
+                                Популярный
+                            </div>
+                            <h3 class="text-xl font-bold">Продвинутый</h3>
+                            <p class="mt-1 text-sm text-indigo-100">Выбор оттенка цвета</p>
+                            <div class="mt-4">
+                                <span class="text-4xl font-bold tracking-tight">300 руб.</span>
+                            </div>
+                        </div>
+
+                        <ul class="mb-6 space-y-3">
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Выбор оттенка (цвет случайный)</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Гарантия уникальности</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Все преимущества базового</span>
+                            </li>
+                        </ul>
+
+                        <div class="mb-4">
+                            <label class="mb-2 block text-xs font-medium">Выберите оттенок</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button type="button" @click="selectedHue = 0"
+                                    :class="selectedHue === 0 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-10 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #ff0000, #ff6666)">
+                                </button>
+                                <button type="button" @click="selectedHue = 30"
+                                    :class="selectedHue === 30 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-10 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #ff8000, #ffb366)">
+                                </button>
+                                <button type="button" @click="selectedHue = 60"
+                                    :class="selectedHue === 60 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-10 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #ffff00, #ffff99)">
+                                </button>
+                                <button type="button" @click="selectedHue = 120"
+                                    :class="selectedHue === 120 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-10 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #00ff00, #66ff66)">
+                                </button>
+                                <button type="button" @click="selectedHue = 180"
+                                    :class="selectedHue === 180 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-10 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #00ffff, #66ffff)">
+                                </button>
+                                <button type="button" @click="selectedHue = 240"
+                                    :class="selectedHue === 240 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-10 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #0000ff, #6666ff)">
+                                </button>
+                                <button type="button" @click="selectedHue = 270"
+                                    :class="selectedHue === 270 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-10 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #8000ff, #b366ff)">
+                                </button>
+                                <button type="button" @click="selectedHue = 330"
+                                    :class="selectedHue === 330 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-10 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #ff0080, #ff66b3)">
+                                </button>
+                            </div>
+                            <p class="mt-1 text-xs text-indigo-100" x-text="getHueName(selectedHue)"></p>
+                        </div>
+
+                        <button @click="buyAdvanced()" :disabled="purchaseLoading || selectedHue === null" class="w-full rounded-xl bg-white px-6 py-3 text-sm font-semibold text-indigo-600 hover:bg-gray-50 disabled:opacity-50">
+                            <span x-show="!purchaseLoading">Выбрать тариф</span>
+                            <span x-show="purchaseLoading">Загрузка...</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Message -->
+                <div x-show="purchaseMessage" x-transition class="mt-6">
+                    <div class="rounded-xl p-4" :class="{
+                        'bg-green-50 border border-green-200 text-green-800': purchaseMessageType === 'success',
+                        'bg-red-50 border border-red-200 text-red-800': purchaseMessageType === 'error'
+                    }">
+                        <p x-text="purchaseMessage" class="text-center font-medium"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="mb-8 grid gap-6 sm:grid-cols-3">
+            <div class="rounded-2xl border border-gray-200 bg-white p-6">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100">
+                        <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900" x-text="elephants.length">0</div>
+                        <div class="text-sm text-gray-600">Всего слонов</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900" x-text="orders.length">0</div>
+                        <div class="text-sm text-gray-600">Заказов</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-pink-100">
+                        <svg class="h-6 w-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900" x-text="sentGifts.length">0</div>
+                        <div class="text-sm text-gray-600">Подарено</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div x-show="loading" class="flex justify-center py-12">
+            <div class="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div x-show="!loading && elephants.length === 0" x-cloak class="rounded-2xl border-2 border-dashed border-gray-300 bg-white p-12 text-center">
+            <div class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 text-5xl">
+                🐘
+            </div>
+            <h3 class="mb-2 text-2xl font-bold text-gray-900">У вас ещё нет слонов</h3>
+            <p class="mb-6 text-gray-600">Купите своего первого уникального цветного слона!</p>
+            <a href="/" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl">
+                Купить слона
+            </a>
+        </div>
+
+        <!-- Elephants List -->
+        <div x-show="!loading && elephants.length > 0" x-cloak>
+            <h2 class="mb-6 text-2xl font-bold text-gray-900">Моя коллекция</h2>
+            <div class="space-y-3">
+                <template x-for="elephant in elephants" :key="elephant.id">
+                    <div class="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 transition hover:border-indigo-300 hover:shadow-sm">
+                        <!-- Image -->
+                        <div class="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-gray-50">
+                            <img :src="`/media/${elephant.image}`"
+                                 :alt="elephant.name"
+                                 class="h-full w-full object-contain">
+                        </div>
+
+                        <!-- Info -->
+                        <div class="min-w-0 flex-1">
+                            <div class="mb-1 flex items-center gap-3">
+                                <h3 class="text-base font-bold text-gray-900" x-text="elephant.name"></h3>
+                                <span class="font-mono text-sm text-gray-600" x-text="elephant.color_hex"></span>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                                <!-- Created date -->
+                                <span>
+                                    Создан: <span x-text="new Date(elephant.created_at).toLocaleDateString('ru-RU')"></span>
+                                </span>
+
+                                <!-- Gift info - for owned elephants that were gifted -->
+                                <span x-show="elephant.is_gifted && elephant.is_owned_by_user" class="inline-flex items-center gap-1 rounded-full bg-pink-50 px-2 py-0.5 font-medium text-pink-700">
+                                    Подарено: <span x-text="elephant.gift_recipient"></span>
+                                    <span x-show="elephant.gift_date">
+                                        (<span x-text="new Date(elephant.gift_date).toLocaleDateString('ru-RU')"></span>)
+                                    </span>
+                                </span>
+
+                                <!-- Gift accepted badge - for elephants gifted away and claimed -->
+                                <span x-show="!elephant.is_owned_by_user && elephant.is_gifted" class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 font-medium text-green-700">
+                                    Подарок принят: <span x-text="elephant.gift_recipient"></span>
+                                    <span x-show="elephant.gift_date">
+                                        (<span x-text="new Date(elephant.gift_date).toLocaleDateString('ru-RU')"></span>)
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex flex-shrink-0 gap-2">
+                            <button @click="downloadElephant(elephant.id)"
+                                    :disabled="!elephant.is_owned_by_user"
+                                    class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40">
+                                Скачать
+                            </button>
+                            <button @click="openGiftModal(elephant)"
+                                    :disabled="elephant.is_gifted || !elephant.is_owned_by_user"
+                                    class="rounded-lg border-2 border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-40">
+                                Подарить
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gift Modal -->
+    <div x-show="showGiftModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex min-h-screen items-center justify-center px-4">
+            <div @click="closeGiftModal()" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity"></div>
+
+            <div class="relative w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl">
+                <h3 class="mb-6 text-2xl font-bold text-gray-900">Подарить слона 🎁</h3>
+
+                <div class="mb-6 rounded-xl bg-gray-50 p-4">
+                    <div class="font-mono text-xl font-bold text-gray-900" x-text="selectedElephant?.color_hex"></div>
+                </div>
+
+                <form @submit.prevent="createGift()">
+                    <div class="mb-4">
+                        <label class="mb-2 block text-sm font-medium text-gray-700">От кого</label>
+                        <input type="text" x-model="giftForm.sender_name" placeholder="Ваше имя" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="mb-2 block text-sm font-medium text-gray-700">Кому (опционально)</label>
+                        <input type="text" x-model="giftForm.recipient_name" placeholder="Например: Иван" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="mb-2 block text-sm font-medium text-gray-700">Персональное сообщение</label>
+                        <textarea x-model="giftForm.message" placeholder="Напишите что-нибудь приятное..." rows="3" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"></textarea>
+                    </div>
+
+                    <div x-show="giftLink" x-cloak class="mb-6 rounded-xl border border-green-200 bg-green-50 p-4">
+                        <p class="mb-2 font-bold text-green-800">Подарок создан!</p>
+                        <p class="mb-3 break-all text-sm text-green-700" x-text="giftLink"></p>
+                        <button type="button" @click="copyGiftLinkFromModal()" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
+                            Копировать ссылку
+                        </button>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="button" @click="closeGiftModal()" class="flex-1 rounded-lg border-2 border-gray-200 px-4 py-3 font-medium text-gray-700 hover:bg-gray-50">
+                            Отмена
+                        </button>
+                        <button type="submit" :disabled="giftLoading" class="flex-1 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 font-medium text-white hover:shadow-lg disabled:opacity-50">
+                            <span x-show="!giftLoading">Создать подарок</span>
+                            <span x-show="giftLoading">Загрузка...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="module">
+import { dashboard } from '/static/js/dashboard-app.js';
+
+// Make dashboard function globally available for Alpine.js
+window.dashboard = function() {
+    return dashboard({
+        username: '{{ user.username }}'
+    });
+};
+</script>
+{% endblock %}

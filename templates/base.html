@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Купи слона{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon.svg' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon.svg' %}">
+
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-white">
+    <nav class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                        </svg>
+                    </div>
+                    <a href="/" class="text-xl font-bold text-gray-900">Купи слона</a>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    {% if user.is_authenticated %}
+                        <a href="/dashboard/" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
+                            Мои слоны
+                        </a>                        
+                        <a href="/accounts/logout/" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-red-50">Выйти</a>
+                        
+                    {% else %}
+                        <a href="/accounts/login/" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
+                            Вход
+                        </a>
+                        <a href="/accounts/register/" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:shadow-lg">
+                            Регистрация
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+            {% for message in messages %}
+                <div class="mb-3 rounded-lg border p-4 {% if message.tags == 'success' %}border-green-200 bg-green-50 text-green-800{% elif message.tags == 'error' %}border-red-200 bg-red-50 text-red-800{% else %}border-blue-200 bg-blue-50 text-blue-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="mt-20 border-t border-gray-200 bg-gray-50">
+        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+            <div class="grid gap-8 md:grid-cols-3">
+                <div>
+                    <div class="mb-3 flex items-center gap-2">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                            </svg>
+                        </div>
+                        <span class="font-bold text-gray-900">Купи слона</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Уникальные цветные слоны</p>
+                </div>
+                <div>
+                    <h3 class="mb-3 font-semibold text-gray-900">Преимущества</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>16.7M уникальных цветов</li>
+                        <li>Мгновенная генерация</li>
+                        <li>Система подарков</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">© 2026 Купи слона</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,441 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 py-20 sm:py-32">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-3xl text-center">
+            <div class="mb-8 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700">
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/>
+                </svg>
+                Один цвет — один владелец в мире
+            </div>
+
+            <h1 class="mb-6 text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl">
+                Подарок, который<br>
+                <span class="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
+                    невозможно повторить
+                </span>
+            </h1>
+
+            <p class="mb-10 text-xl leading-8 text-gray-600">
+                Слон твоего цвета — это картина, которая существует в единственном экземпляре.
+                Из 16 миллионов оттенков каждый принадлежит только одному человеку.
+                Себе или в подарок — за 100 ₽.
+            </p>
+
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                {% if not user.is_authenticated %}
+                    <a href="/accounts/register/" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-4 text-base font-semibold text-white shadow-lg hover:shadow-xl transition">
+                        Получить своего слона
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </a>
+                {% else %}
+                    <a href="/dashboard/" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-4 text-base font-semibold text-white shadow-lg hover:shadow-xl transition">
+                        Мой кабинет
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </a>
+                {% endif %}
+                <a href="#how" class="inline-flex items-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-8 py-4 text-base font-semibold text-gray-900 hover:border-gray-300 transition">
+                    Как это работает?
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decorative elements -->
+    <div class="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl" aria-hidden="true">
+        <div class="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-indigo-200 to-purple-200 opacity-30"></div>
+    </div>
+</section>
+
+<!-- Use Cases — зачем покупать -->
+<section class="bg-white py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                Когда слон — идеальный выбор
+            </h2>
+            <p class="mt-4 text-lg text-gray-600">
+                Необычный подарок, который запоминается навсегда
+            </p>
+        </div>
+
+        <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="group rounded-2xl border border-gray-200 p-8 transition hover:border-indigo-200 hover:shadow-lg">
+                <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-pink-100 text-pink-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                </div>
+                <h3 class="mb-2 text-xl font-semibold text-gray-900">Подарок близкому</h3>
+                <p class="text-gray-600">«Дарю тебе единственный в мире цвет» — звучит куда лучше, чем очередная открытка. Отправьте ссылку — и готово.</p>
+            </div>
+
+            <div class="group rounded-2xl border border-gray-200 p-8 transition hover:border-indigo-200 hover:shadow-lg">
+                <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                    </svg>
+                </div>
+                <h3 class="mb-2 text-xl font-semibold text-gray-900">Коллекция оттенков</h3>
+                <p class="text-gray-600">Собирайте свою палитру: любимый цвет, цвет дня рождения, цвет настроения. Каждый слон — история.</p>
+            </div>
+
+            <div class="group rounded-2xl border border-gray-200 p-8 transition hover:border-indigo-200 hover:shadow-lg">
+                <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="mb-2 text-xl font-semibold text-gray-900">Просто для настроения</h3>
+                <p class="text-gray-600">Иногда хочется чего-то маленького и приятного. Слон за 100 рублей — это ровно такое приятное безумие.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How it works -->
+<section id="how" class="bg-gray-50 py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                Три шага до своего слона
+            </h2>
+        </div>
+
+        <div class="mt-16 grid gap-8 sm:grid-cols-3">
+            <div class="relative text-center">
+                <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-600 text-2xl font-bold text-white shadow-lg">1</div>
+                <h3 class="mb-2 text-lg font-semibold text-gray-900">Выберите тариф</h3>
+                <p class="text-gray-600">Случайный цвет за 100 ₽ или выберите оттенок за 300 ₽</p>
+            </div>
+            <div class="relative text-center">
+                <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-600 text-2xl font-bold text-white shadow-lg">2</div>
+                <h3 class="mb-2 text-lg font-semibold text-gray-900">Получите слона</h3>
+                <p class="text-gray-600">За пару секунд для вас будет создана уникальная картинка в HD качестве</p>
+            </div>
+            <div class="relative text-center">
+                <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-pink-600 text-2xl font-bold text-white shadow-lg">3</div>
+                <h3 class="mb-2 text-lg font-semibold text-gray-900">Скачайте или подарите</h3>
+                <p class="text-gray-600">Скачивайте сколько угодно раз или отправьте ссылку другу в качестве подарка</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing" class="bg-white py-20" x-data="tariffApp()">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                Выберите своего слона
+            </h2>
+            <p class="mt-4 text-lg text-gray-600">
+                Оба тарифа гарантируют уникальность — ваш цвет больше никому не достанется
+            </p>
+        </div>
+
+        <div class="mt-16 grid gap-8 lg:grid-cols-2 lg:gap-10">
+            <!-- Basic Plan -->
+            <div class="relative rounded-3xl border-2 border-gray-200 bg-white p-8 shadow-sm lg:p-10">
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold text-gray-900">Сюрприз</h3>
+                    <p class="mt-2 text-gray-600">Цвет выбирает судьба — вы получаете неповторимого слона</p>
+                    <div class="mt-6">
+                        <span class="text-5xl font-bold tracking-tight text-gray-900">100 ₽</span>
+                    </div>
+                </div>
+
+                <ul class="mb-8 space-y-4">
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-0.5 h-6 w-6 flex-shrink-0 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-gray-700">Случайный цвет из 16.7 миллионов</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-0.5 h-6 w-6 flex-shrink-0 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-gray-700">Картинка 1500×1500 px — ставь на аватарку или печатай</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-0.5 h-6 w-6 flex-shrink-0 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-gray-700">Скачивай без ограничений навсегда</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-0.5 h-6 w-6 flex-shrink-0 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-gray-700">Дари по ссылке — получатель тоже удивится</span>
+                    </li>
+                </ul>
+
+                {% if user.is_authenticated %}
+                    <button @click="buyBasic()" :disabled="loading" class="w-full rounded-xl bg-gray-900 px-6 py-4 text-base font-semibold text-white hover:bg-gray-800 disabled:opacity-50 transition">
+                        <span x-show="!loading">Испытать удачу за 100 ₽</span>
+                        <span x-show="loading">Загрузка...</span>
+                    </button>
+                {% else %}
+                    <a href="/accounts/login/" class="block w-full rounded-xl bg-gray-900 px-6 py-4 text-center text-base font-semibold text-white hover:bg-gray-800 transition">
+                        Войти для покупки
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Advanced Plan -->
+            <div class="relative rounded-3xl border-2 border-indigo-500 bg-gradient-to-br from-indigo-500 to-purple-600 p-8 text-white shadow-xl lg:p-10">
+                <div class="absolute -top-5 left-1/2 -translate-x-1/2">
+                    <span class="inline-flex rounded-full bg-yellow-400 px-4 py-1 text-sm font-semibold text-gray-900">
+                        Для тех, кто знает чего хочет
+                    </span>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold">Мой оттенок</h3>
+                    <p class="mt-2 text-indigo-100">Выберите палитру — мы найдём уникальный цвет внутри неё</p>
+                    <div class="mt-6">
+                        <span class="text-5xl font-bold tracking-tight">300 ₽</span>
+                    </div>
+                </div>
+
+                <ul class="mb-8 space-y-4">
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-0.5 h-6 w-6 flex-shrink-0 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Хотите красного слона? Или синего? Выбирайте палитру</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-0.5 h-6 w-6 flex-shrink-0 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Точный оттенок останется сюрпризом — уникальность гарантирована</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-0.5 h-6 w-6 flex-shrink-0 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>HD картинка 1500×1500 px</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-0.5 h-6 w-6 flex-shrink-0 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Идеально для подарка — выберите любимый цвет друга</span>
+                    </li>
+                </ul>
+
+                {% if user.is_authenticated %}
+                    <div class="space-y-4">
+                        <div>
+                            <label class="mb-3 block text-sm font-medium">В какой палитре искать ваш цвет?</label>
+                            <div class="grid grid-cols-4 gap-3">
+                                <!-- Красный -->
+                                <button type="button" @click="selectedHue = 0"
+                                    :class="selectedHue === 0 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-12 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #ff0000, #ff6666)">
+                                </button>
+                                <!-- Оранжевый -->
+                                <button type="button" @click="selectedHue = 30"
+                                    :class="selectedHue === 30 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-12 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #ff8000, #ffb366)">
+                                </button>
+                                <!-- Желтый -->
+                                <button type="button" @click="selectedHue = 60"
+                                    :class="selectedHue === 60 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-12 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #ffff00, #ffff99)">
+                                </button>
+                                <!-- Зеленый -->
+                                <button type="button" @click="selectedHue = 120"
+                                    :class="selectedHue === 120 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-12 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #00ff00, #66ff66)">
+                                </button>
+                                <!-- Голубой -->
+                                <button type="button" @click="selectedHue = 180"
+                                    :class="selectedHue === 180 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-12 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #00ffff, #66ffff)">
+                                </button>
+                                <!-- Синий -->
+                                <button type="button" @click="selectedHue = 240"
+                                    :class="selectedHue === 240 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-12 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #0000ff, #6666ff)">
+                                </button>
+                                <!-- Фиолетовый -->
+                                <button type="button" @click="selectedHue = 270"
+                                    :class="selectedHue === 270 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-12 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #8000ff, #b366ff)">
+                                </button>
+                                <!-- Розовый -->
+                                <button type="button" @click="selectedHue = 330"
+                                    :class="selectedHue === 330 ? 'ring-4 ring-white scale-105' : 'ring-2 ring-white/20'"
+                                    class="h-12 w-full rounded-lg transition-all"
+                                    style="background: linear-gradient(135deg, #ff0080, #ff66b3)">
+                                </button>
+                            </div>
+                            <p class="mt-2 text-xs text-indigo-100">Палитра: <span class="font-semibold" x-text="getHueName(selectedHue)"></span></p>
+                        </div>
+
+                        <button @click="buyAdvanced()" :disabled="loading || selectedHue === null" class="w-full rounded-xl bg-white px-6 py-4 text-base font-semibold text-indigo-600 hover:bg-gray-50 disabled:opacity-50 transition">
+                            <span x-show="!loading">Выбрать оттенок за 300 ₽</span>
+                            <span x-show="loading">Загрузка...</span>
+                        </button>
+                    </div>
+                {% else %}
+                    <a href="/accounts/login/" class="block w-full rounded-xl bg-white px-6 py-4 text-center text-base font-semibold text-indigo-600 hover:bg-gray-50 transition">
+                        Войти для покупки
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div x-show="message" x-transition class="mx-auto mt-8 max-w-2xl">
+            <div class="rounded-xl p-4" :class="{
+                'bg-green-50 border border-green-200 text-green-800': messageType === 'success',
+                'bg-red-50 border border-red-200 text-red-800': messageType === 'error'
+            }">
+                <p x-text="message" class="text-center font-medium"></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Social proof / scarcity -->
+<section class="bg-gray-50 py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-8 sm:grid-cols-3">
+            <div class="text-center">
+                <div class="mb-2 text-4xl font-bold text-indigo-600">16 777 216</div>
+                <div class="text-sm font-medium text-gray-900">Слонов может существовать</div>
+                <div class="text-xs text-gray-500">И ни одним больше</div>
+            </div>
+            <div class="text-center">
+                <div class="mb-2 text-4xl font-bold text-purple-600">1</div>
+                <div class="text-sm font-medium text-gray-900">Владелец у каждого цвета</div>
+                <div class="text-xs text-gray-500">Навсегда закреплён за вами</div>
+            </div>
+            <div class="text-center">
+                <div class="mb-2 text-4xl font-bold text-pink-600">100 ₽</div>
+                <div class="text-sm font-medium text-gray-900">Стоимость уникальности</div>
+                <div class="text-xs text-gray-500">Дешевле чашки кофе</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="bg-white py-20">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                Частые вопросы
+            </h2>
+        </div>
+
+        <div class="mt-12 space-y-4" x-data="{ open: null }">
+            <div class="rounded-2xl border border-gray-200 transition hover:border-indigo-200">
+                <button @click="open = open === 1 ? null : 1" class="flex w-full items-center justify-between p-6 text-left">
+                    <span class="text-lg font-semibold text-gray-900">Что значит «уникальный цвет»?</span>
+                    <svg class="h-5 w-5 flex-shrink-0 text-gray-500 transition" :class="{ 'rotate-180': open === 1 }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open === 1" x-collapse class="px-6 pb-6 text-gray-600">
+                    В системе RGB существует ровно 16 777 216 цветов. Каждый из них может быть присвоен только одному человеку. Когда вы покупаете слона, вы получаете картинку, окрашенную в цвет, которого больше нет ни у кого в мире.
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 transition hover:border-indigo-200">
+                <button @click="open = open === 2 ? null : 2" class="flex w-full items-center justify-between p-6 text-left">
+                    <span class="text-lg font-semibold text-gray-900">Как подарить слона?</span>
+                    <svg class="h-5 w-5 flex-shrink-0 text-gray-500 transition" :class="{ 'rotate-180': open === 2 }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open === 2" x-collapse class="px-6 pb-6 text-gray-600">
+                    После покупки вы получите уникальную ссылку в личном кабинете. Отправьте её другу — он сможет увидеть и скачать своего слона. Просто, как переслать сообщение.
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 transition hover:border-indigo-200">
+                <button @click="open = open === 3 ? null : 3" class="flex w-full items-center justify-between p-6 text-left">
+                    <span class="text-lg font-semibold text-gray-900">Чем отличается тариф «Мой оттенок»?</span>
+                    <svg class="h-5 w-5 flex-shrink-0 text-gray-500 transition" :class="{ 'rotate-180': open === 3 }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open === 3" x-collapse class="px-6 pb-6 text-gray-600">
+                    В тарифе «Сюрприз» цвет полностью случайный — это может быть что угодно. В тарифе «Мой оттенок» вы выбираете палитру (красные, синие, зелёные и т.д.), и система подберёт уникальный цвет внутри неё. Точный оттенок всё равно будет сюрпризом, но в рамках вашего выбора.
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 transition hover:border-indigo-200">
+                <button @click="open = open === 4 ? null : 4" class="flex w-full items-center justify-between p-6 text-left">
+                    <span class="text-lg font-semibold text-gray-900">Что я могу делать со слоном?</span>
+                    <svg class="h-5 w-5 flex-shrink-0 text-gray-500 transition" :class="{ 'rotate-180': open === 4 }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open === 4" x-collapse class="px-6 pb-6 text-gray-600">
+                    Всё что хотите! Ставьте на аватарку, печатайте на кружке, вешайте на стену, дарите друзьям. Это ваш уникальный цвет — и ваш уникальный слон.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="bg-gradient-to-br from-indigo-500 to-purple-600 py-20">
+    <div class="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Ваш цвет ещё свободен.<br>Но не навсегда.
+        </h2>
+        <p class="mt-4 text-lg text-indigo-100">
+            16 миллионов цветов — это много. Но каждый день их становится чуть меньше.
+        </p>
+        <div class="mt-10">
+            {% if not user.is_authenticated %}
+                <a href="/accounts/register/" class="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-indigo-600 shadow-lg hover:bg-gray-50 transition">
+                    Забрать своего слона
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </a>
+            {% else %}
+                <a href="#pricing" class="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-indigo-600 shadow-lg hover:bg-gray-50 transition">
+                    Выбрать тариф
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="module">
+import { tariffApp } from '/static/js/tariff-app.js';
+
+// Make tariffApp function globally available for Alpine.js
+window.tariffApp = tariffApp;
+</script>
+{% endblock %}

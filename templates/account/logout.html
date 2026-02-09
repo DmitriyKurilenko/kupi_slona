@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Выход из системы - Kupi Slona{% endblock %}
+
+{% block content %}
+<div class="mx-auto min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4 py-16">
+    <div class="mx-auto max-w-md">
+        <div class="rounded-2xl bg-white p-8 shadow-xl">
+            <div class="mb-6 text-center">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100">
+                    <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900">Выход из системы</h1>
+            </div>
+
+            <form method="post" action="{% url 'account_logout' %}">
+                {% csrf_token %}
+
+                <p class="mb-6 text-center text-gray-600">
+                    Вы уверены, что хотите выйти?
+                </p>
+
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                {% endif %}
+
+                <div class="space-y-3">
+                    <button
+                        type="submit"
+                        class="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 font-semibold text-white shadow-md transition-shadow hover:shadow-lg"
+                    >
+                        Выйти
+                    </button>
+
+                    <a
+                        href="/"
+                        class="block w-full rounded-lg border-2 border-gray-200 bg-white px-6 py-3 text-center font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                    >
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="/" class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Вернуться на главную
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

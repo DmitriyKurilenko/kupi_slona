@@ -1,0 +1,65 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.md
+!README.md
+LICENSE
+.env.example
+.env.production.example
+docker-compose.yml
+docker-compose.prod.yml
+
+# Media and static (будут в volumes)
+media/
+staticfiles/
+
+# Database
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# Documentation
+docs/
+NGINX_PROXY_MANAGER_SETUP.md
+
+# Test files
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Backup files
+*.bak
+*.tmp
+backup.sql
