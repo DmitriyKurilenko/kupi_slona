@@ -11,16 +11,34 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Конфигурация
-DOMAIN="kupislona.prvms.ru"
-EMAIL="admin@prvms.ru"  # Укажите ваш email
+# Загрузка переменных из .env
+if [ ! -f .env ]; then
+    echo -e "${RED}❌ Файл .env не найден!${NC}"
+    echo "Создайте .env из .env.example и укажите DOMAIN и SSL_EMAIL"
+    exit 1
+fi
+
+# Загрузка .env
+export $(grep -v '^#' .env | xargs)
+
+# Проверка обязательных переменных
+if [ -z "$DOMAIN" ]; then
+    echo -e "${RED}❌ Переменная DOMAIN не указана в .env${NC}"
+    exit 1
+fi
+
+if [ -z "$SSL_EMAIL" ]; then
+    echo -e "${RED}❌ Переменная SSL_EMAIL не указана в .env${NC}"
+    exit 1
+fi
+
 COMPOSE_FILE="docker-compose.prod.yml"
 
 echo "🔐 Let's Encrypt SSL Setup"
 echo "=========================="
 echo ""
 echo "Domain: $DOMAIN"
-echo "Email: $EMAIL"
+echo "Email: $SSL_EMAIL"
 echo ""
 
 # 1. Создание временной конфигурации nginx без SSL
@@ -68,7 +86,7 @@ echo -e "${YELLOW}🔐 Requesting SSL certificate...${NC}"
 docker-compose -f $COMPOSE_FILE run --rm certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \
-    --email $EMAIL \
+    --email $SSL_EMAIL \
     --agree-tos \
     --no-eff-email \
     -d $DOMAIN

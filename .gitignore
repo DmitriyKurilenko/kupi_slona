@@ -92,3 +92,4 @@ yarn-error.log*
 test_names.py
 note
 .env.slon.prvms.ru
+nginx/conf.d/default.conf
