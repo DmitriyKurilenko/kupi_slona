@@ -2,6 +2,7 @@
 Views for authentication pages
 """
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
@@ -80,9 +81,6 @@ def logout_view(request):
 
 
 # OAuth redirect views
-from django.urls import reverse
-
-
 def google_oauth_init(request):
     """Initiate Google OAuth flow"""
     return redirect(reverse('google_login'))

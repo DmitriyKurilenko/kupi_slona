@@ -18,7 +18,6 @@ jobs:
         script: |
           cd ~/kupi_slona
           git pull origin main
-          docker-compose -f docker-compose.npm-simple.yml build
           docker-compose -f docker-compose.npm-simple.yml up -d
           sleep 5
           docker exec kupi_slona_web python manage.py migrate --noinput
