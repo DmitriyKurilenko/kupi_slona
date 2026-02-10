@@ -12,7 +12,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 # Конфигурация
-DOMAIN="slon.prvms.ru"
+DOMAIN="kupislona.prvms.ru"
 EMAIL="admin@prvms.ru"  # Укажите ваш email
 COMPOSE_FILE="docker-compose.prod.yml"
 
@@ -25,11 +25,11 @@ echo ""
 
 # 1. Создание временной конфигурации nginx без SSL
 echo -e "${YELLOW}📝 Creating temporary nginx config...${NC}"
-cat > nginx/conf.d/default.conf << 'EOF'
+cat > nginx/conf.d/default.conf << EOF
 # Temporary HTTP-only config for certbot
 server {
     listen 80;
-    server_name slon.prvms.ru;
+    server_name ${DOMAIN};
 
     # Allow certbot challenges
     location /.well-known/acme-challenge/ {
@@ -39,10 +39,10 @@ server {
     # Temporary allow all traffic
     location / {
         proxy_pass http://django;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
     location /static/ {
@@ -75,11 +75,11 @@ docker-compose -f $COMPOSE_FILE run --rm certbot certonly \
 
 # 5. Восстановление полной конфигурации nginx с SSL
 echo -e "${YELLOW}📝 Restoring full nginx config with SSL...${NC}"
-cat > nginx/conf.d/default.conf << 'EOF'
+cat > nginx/conf.d/default.conf << EOF
 # HTTP server - redirect to HTTPS
 server {
     listen 80;
-    server_name slon.prvms.ru;
+    server_name ${DOMAIN};
 
     # Allow certbot challenges
     location /.well-known/acme-challenge/ {
@@ -88,18 +88,18 @@ server {
 
     # Redirect all other traffic to HTTPS
     location / {
-        return 301 https://$host$request_uri;
+        return 301 https://\$host\$request_uri;
     }
 }
 
 # HTTPS server
 server {
     listen 443 ssl http2;
-    server_name slon.prvms.ru;
+    server_name ${DOMAIN};
 
     # SSL certificates
-    ssl_certificate /etc/letsencrypt/live/slon.prvms.ru/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/slon.prvms.ru/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
 
     # SSL configuration
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -131,15 +131,15 @@ server {
     # Proxy to Django
     location / {
         proxy_pass http://django;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
         proxy_redirect off;
 
         # WebSocket support
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
     }
 }
