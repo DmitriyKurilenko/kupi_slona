@@ -44,33 +44,49 @@ class RegisterView(View):
         return render(request, self.template_name, {'page_title': 'Регистрация'})
 
     def post(self, request):
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        password2 = request.POST.get('password2')
+        import sys
+        import traceback
 
-        # Валидация
-        if password != password2:
-            messages.error(request, 'Пароли не совпадают')
-            return render(request, self.template_name, {'page_title': 'Регистрация'})
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Пользователь с таким именем уже существует')
-            return render(request, self.template_name, {'page_title': 'Регистрация'})
-
-        # Валидация пароля
         try:
-            validate_password(password, user=User(username=username, email=email))
-        except ValidationError as e:
-            for error in e.messages:
-                messages.error(request, error)
-            return render(request, self.template_name, {'page_title': 'Регистрация'})
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            password2 = request.POST.get('password2')
 
-        # Создание пользователя
-        user = User.objects.create_user(username=username, email=email, password=password)
-        login(request, user)
-        messages.success(request, 'Добро пожаловать!')
-        return redirect('/dashboard/')
+            # Валидация
+            if password != password2:
+                messages.error(request, 'Пароли не совпадают')
+                return render(request, self.template_name, {'page_title': 'Регистрация'})
+
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Пользователь с таким именем уже существует')
+                return render(request, self.template_name, {'page_title': 'Регистрация'})
+
+            # Валидация пароля
+            try:
+                validate_password(password, user=User(username=username, email=email))
+            except ValidationError as e:
+                for error in e.messages:
+                    messages.error(request, error)
+                return render(request, self.template_name, {'page_title': 'Регистрация'})
+
+            # Создание пользователя
+            print(f"DEBUG: Creating user {username} with email {email}", file=sys.stderr, flush=True)
+            user = User.objects.create_user(username=username, email=email, password=password)
+            print(f"DEBUG: User created successfully: {user.id}", file=sys.stderr, flush=True)
+
+            print(f"DEBUG: Attempting login for user {user.username}", file=sys.stderr, flush=True)
+            login(request, user)
+            print(f"DEBUG: Login successful", file=sys.stderr, flush=True)
+
+            messages.success(request, 'Добро пожаловать!')
+            return redirect('/dashboard/')
+
+        except Exception as e:
+            print(f"REGISTRATION ERROR: {type(e).__name__}: {str(e)}", file=sys.stderr, flush=True)
+            print(f"FULL TRACEBACK:\n{traceback.format_exc()}", file=sys.stderr, flush=True)
+            messages.error(request, f'Ошибка регистрации: {str(e)}')
+            return render(request, self.template_name, {'page_title': 'Регистрация'})
 
 
 def logout_view(request):
