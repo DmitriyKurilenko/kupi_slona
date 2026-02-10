@@ -10,3 +10,4 @@ cairosvg>=2.7,<3.0
 django-allauth>=0.63,<1.0
 requests>=2.31,<3.0
 cryptography>=42.0,<43.0
+whitenoise>=6.6,<7.0
