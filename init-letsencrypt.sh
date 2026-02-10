@@ -151,14 +151,34 @@ docker-compose -f $COMPOSE_FILE restart nginx
 
 # 7. Запуск certbot для автообновления
 echo -e "${YELLOW}🤖 Starting certbot renewal service...${NC}"
-docker-compose -f $COMPOSE_FILE up -d certbot
+docker-compose -f $COMPOSE_FILE up -d certbot > /dev/null 2>&1
+echo "✓ Certbot renewal service started"
 
-# 8. Готово!
+# 8. Проверка сертификата
 echo ""
+echo -e "${YELLOW}🔍 Verifying certificate...${NC}"
+if docker-compose -f $COMPOSE_FILE run --rm certbot certificates 2>&1 | grep -q "${DOMAIN}"; then
+    echo -e "${GREEN}✓ Certificate successfully obtained for ${DOMAIN}${NC}"
+else
+    echo -e "${RED}✗ Certificate not found! Check logs above for errors.${NC}"
+    exit 1
+fi
+
+# 9. Готово!
+echo ""
+echo -e "${GREEN}═══════════════════════════════════════${NC}"
 echo -e "${GREEN}✅ SSL setup completed successfully!${NC}"
+echo -e "${GREEN}═══════════════════════════════════════${NC}"
 echo ""
-echo "Your site should now be accessible at:"
-echo "  https://$DOMAIN"
+echo "🌐 Your site should now be accessible at:"
+echo "   https://$DOMAIN"
 echo ""
-echo "Certificate will auto-renew every 12 hours via certbot service."
+echo "🔐 Certificate details:"
+echo "   Location: /etc/letsencrypt/live/${DOMAIN}/"
+echo "   Auto-renewal: Every 12 hours via certbot service"
+echo ""
+echo "📋 Next steps:"
+echo "   1. Visit https://$DOMAIN to verify it works"
+echo "   2. Check nginx logs: docker-compose -f $COMPOSE_FILE logs nginx"
+echo "   3. Deploy your app: ./auto-deploy.sh"
 echo ""
