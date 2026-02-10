@@ -36,6 +36,8 @@ db.sqlite3-journal
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
 venv/
 env/
 ENV/
@@ -88,8 +90,6 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.env.example
 test_names.py
 note
-.env.slon.prvms.ru
 nginx/conf.d/default.conf

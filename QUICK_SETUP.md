@@ -9,24 +9,36 @@ cd ~
 git clone <repo-url> kupi_slona
 cd kupi_slona
 
-# Создай .env из примера
-cp .env.example .env
+# Вариант 1: Автоматическая настройка (рекомендуется)
+./setup-env.sh
 
-# Отредактируй .env - укажи DOMAIN и SSL_EMAIL
-nano .env
+# Вариант 2: Ручная настройка
+# cp .env.example .env
+# nano .env
 ```
 
-**Обязательно укажи в .env:**
+**ОБЯЗАТЕЛЬНО установи в .env:**
 ```bash
+# Production Domain (первые 2 строки - ОБЯЗАТЕЛЬНЫ для SSL!)
 DOMAIN=kupislona.prvms.ru
 SSL_EMAIL=admin@prvms.ru
 
+# Django Settings
 DEBUG=False
 SECRET_KEY=<твой-секретный-ключ>
 ALLOWED_HOSTS=kupislona.prvms.ru
 CSRF_TRUSTED_ORIGINS=https://kupislona.prvms.ru
 
+# Database
 DB_PASSWORD=<сильный-пароль>
+```
+
+**Проверь что DOMAIN и SSL_EMAIL установлены:**
+```bash
+grep -E "^DOMAIN=|^SSL_EMAIL=" .env
+# Должно показать:
+# DOMAIN=kupislona.prvms.ru
+# SSL_EMAIL=admin@prvms.ru
 ```
 
 ### 2. Запусти init для SSL
@@ -62,12 +74,36 @@ DB_PASSWORD=<сильный-пароль>
 
 ## Если что-то не работает:
 
+### Проблема: "No renewals were attempted" или сертификат не получен
+
+```bash
+# 1. Проверь что .env файл существует и содержит DOMAIN и SSL_EMAIL
+cat .env | grep -E "^DOMAIN=|^SSL_EMAIL="
+
+# Если пусто или файла нет:
+./setup-env.sh
+
+# 2. Проверь что домен доступен по HTTP (port 80)
+curl -I http://ваш-домен.ru
+
+# 3. Проверь логи nginx
+docker-compose -f docker-compose.prod.yml logs nginx | tail -50
+
+# 4. Запусти init заново
+./init-letsencrypt.sh
+```
+
+### Другие проблемы:
+
 ```bash
 # Проверь контейнеры
 docker-compose -f docker-compose.prod.yml ps
 
-# Проверь логи nginx
-docker-compose -f docker-compose.prod.yml logs nginx
+# Проверь логи web
+docker-compose -f docker-compose.prod.yml logs web | tail -50
+
+# Полная диагностика
+./diagnose.sh
 
 # Перезапусти всё
 docker-compose -f docker-compose.prod.yml down

@@ -14,7 +14,14 @@ NC='\033[0m'
 # Загрузка переменных из .env
 if [ ! -f .env ]; then
     echo -e "${RED}❌ Файл .env не найден!${NC}"
-    echo "Создайте .env из .env.example и укажите DOMAIN и SSL_EMAIL"
+    echo ""
+    echo "Создайте .env файл:"
+    echo "  cp .env.example .env"
+    echo "  nano .env"
+    echo ""
+    echo "Установите в .env:"
+    echo "  DOMAIN=ваш-домен.ru"
+    echo "  SSL_EMAIL=admin@ваш-домен.ru"
     exit 1
 fi
 
@@ -24,11 +31,23 @@ export $(grep -v '^#' .env | xargs)
 # Проверка обязательных переменных
 if [ -z "$DOMAIN" ]; then
     echo -e "${RED}❌ Переменная DOMAIN не указана в .env${NC}"
+    echo ""
+    echo "Откройте .env и установите:"
+    echo "  DOMAIN=ваш-домен.ru"
+    echo ""
+    echo "Текущее содержимое .env:"
+    cat .env | grep -E "^DOMAIN=" || echo "  (DOMAIN не найден)"
     exit 1
 fi
 
 if [ -z "$SSL_EMAIL" ]; then
     echo -e "${RED}❌ Переменная SSL_EMAIL не указана в .env${NC}"
+    echo ""
+    echo "Откройте .env и установите:"
+    echo "  SSL_EMAIL=admin@ваш-домен.ru"
+    echo ""
+    echo "Текущее содержимое .env:"
+    cat .env | grep -E "^SSL_EMAIL=" || echo "  (SSL_EMAIL не найден)"
     exit 1
 fi
 
@@ -82,14 +101,29 @@ echo -e "${YELLOW}⏳ Waiting for services to start...${NC}"
 sleep 5
 
 # 4. Получение сертификата
-echo -e "${YELLOW}🔐 Requesting SSL certificate...${NC}"
-docker-compose -f $COMPOSE_FILE run --rm certbot certonly \
+echo -e "${YELLOW}🔐 Requesting SSL certificate for ${DOMAIN}...${NC}"
+echo "This may take 30-60 seconds..."
+echo ""
+
+if docker-compose -f $COMPOSE_FILE run --rm certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \
     --email $SSL_EMAIL \
     --agree-tos \
     --no-eff-email \
-    -d $DOMAIN
+    -d $DOMAIN 2>&1 | tee /tmp/certbot.log; then
+    echo ""
+    echo -e "${GREEN}✓ Certificate request completed${NC}"
+else
+    echo ""
+    echo -e "${RED}✗ Failed to obtain certificate!${NC}"
+    echo "Check the error above. Common issues:"
+    echo "  - Domain not pointing to this server"
+    echo "  - Port 80 blocked by firewall"
+    echo "  - nginx not accessible from internet"
+    cat /tmp/certbot.log
+    exit 1
+fi
 
 # 5. Восстановление полной конфигурации nginx с SSL
 echo -e "${YELLOW}📝 Restoring full nginx config with SSL...${NC}"
@@ -168,17 +202,27 @@ echo -e "${YELLOW}🔄 Reloading nginx with SSL...${NC}"
 docker-compose -f $COMPOSE_FILE restart nginx
 
 # 7. Запуск certbot для автообновления
-echo -e "${YELLOW}🤖 Starting certbot renewal service...${NC}"
-docker-compose -f $COMPOSE_FILE up -d certbot > /dev/null 2>&1
-echo "✓ Certbot renewal service started"
+echo -e "${YELLOW}🤖 Starting certbot auto-renewal service...${NC}"
+docker-compose -f $COMPOSE_FILE up -d certbot >/dev/null 2>&1
+echo -e "${GREEN}✓ Certbot renewal service started${NC}"
+echo "  (будет автоматически проверять сертификат каждые 12 часов)"
 
 # 8. Проверка сертификата
 echo ""
-echo -e "${YELLOW}🔍 Verifying certificate...${NC}"
-if docker-compose -f $COMPOSE_FILE run --rm certbot certificates 2>&1 | grep -q "${DOMAIN}"; then
-    echo -e "${GREEN}✓ Certificate successfully obtained for ${DOMAIN}${NC}"
+echo -e "${YELLOW}🔍 Verifying certificate installation...${NC}"
+CERT_INFO=$(docker-compose -f $COMPOSE_FILE run --rm certbot certificates 2>/dev/null | grep -A 5 "$DOMAIN" | head -6)
+
+if echo "$CERT_INFO" | grep -q "$DOMAIN"; then
+    echo -e "${GREEN}✓ Certificate successfully installed!${NC}"
+    echo ""
+    echo "Certificate details:"
+    echo "$CERT_INFO" | grep -E "Certificate Name|Domains|Expiry"
 else
-    echo -e "${RED}✗ Certificate not found! Check logs above for errors.${NC}"
+    echo -e "${RED}✗ Certificate verification failed!${NC}"
+    echo "Certificate not found for domain: $DOMAIN"
+    echo ""
+    echo "Trying to get certificate list..."
+    docker-compose -f $COMPOSE_FILE run --rm certbot certificates 2>&1 | head -20
     exit 1
 fi
 
