@@ -4,6 +4,8 @@ Views for authentication pages
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.views import View
 
@@ -53,6 +55,14 @@ class RegisterView(View):
 
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Пользователь с таким именем уже существует')
+            return render(request, self.template_name, {'page_title': 'Регистрация'})
+
+        # Валидация пароля
+        try:
+            validate_password(password, user=User(username=username, email=email))
+        except ValidationError as e:
+            for error in e.messages:
+                messages.error(request, error)
             return render(request, self.template_name, {'page_title': 'Регистрация'})
 
         # Создание пользователя
