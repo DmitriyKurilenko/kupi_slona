@@ -40,36 +40,40 @@ if ! docker network ls | grep -q nginx-proxy; then
     docker network create nginx-proxy
 fi
 
-# 4. Пересборка контейнеров
+# 4. Остановка старых контейнеров
+echo -e "${YELLOW}🛑 Stopping old containers...${NC}"
+docker-compose -f $COMPOSE_FILE down || true
+
+# 5. Пересборка контейнеров
 echo -e "${YELLOW}🔨 Building containers...${NC}"
 docker-compose -f $COMPOSE_FILE build --no-cache web || {
     echo -e "${RED}❌ Build failed!${NC}"
     exit 1
 }
 
-# 5. Перезапуск сервисов
-echo -e "${YELLOW}🔄 Restarting services...${NC}"
+# 6. Запуск сервисов
+echo -e "${YELLOW}🔄 Starting services...${NC}"
 docker-compose -f $COMPOSE_FILE up -d
 
-# 6. Ожидание запуска
+# 7. Ожидание запуска
 echo -e "${YELLOW}⏳ Waiting for services to start...${NC}"
-sleep 5
+sleep 10
 
-# 7. Миграции
+# 8. Миграции
 echo -e "${YELLOW}🗄️  Running migrations...${NC}"
 docker exec kupi_slona_web python manage.py migrate --noinput || {
     echo -e "${RED}❌ Migrations failed!${NC}"
     exit 1
 }
 
-# 8. Сборка статики
+# 9. Сборка статики
 echo -e "${YELLOW}📦 Collecting static files...${NC}"
 docker exec kupi_slona_web python manage.py collectstatic --noinput || {
     echo -e "${RED}❌ Collectstatic failed!${NC}"
     exit 1
 }
 
-# 9. Проверка статуса
+# 10. Проверка статуса
 echo ""
 echo -e "${YELLOW}📊 Services status:${NC}"
 docker-compose -f $COMPOSE_FILE ps
