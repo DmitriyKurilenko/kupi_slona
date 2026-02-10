@@ -18,9 +18,10 @@ jobs:
         script: |
           cd ~/kupi_slona
           git pull
-          docker-compose -f docker-compose.npm-simple.yml build --no-cache web
-          docker-compose -f docker-compose.npm-simple.yml up -d
+          docker-compose -f docker-compose.prod.yml build --no-cache web
+          docker-compose -f docker-compose.prod.yml up -d
           sleep 10
-          docker exec kupi_slona_web python manage.py migrate --noinput
-          docker exec kupi_slona_web python manage.py collectstatic --noinput
+          WEB_CONTAINER=$(docker-compose -f docker-compose.prod.yml ps -q web)
+          docker exec $WEB_CONTAINER python manage.py migrate --noinput
+          docker exec $WEB_CONTAINER python manage.py collectstatic --noinput
           echo "✅ Deployment completed!"

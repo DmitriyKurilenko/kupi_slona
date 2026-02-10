@@ -1,21 +1,14 @@
 version: '3.9'
 
-# Для работы с Nginx Proxy Manager
-# Использование: docker-compose -f docker-compose.prod.yml up -d
-
 services:
   db:
     image: postgres:16-alpine
-    container_name: kupi_slona_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=elephant_shop
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
-    # Не публикуем порт наружу для безопасности
-    expose:
-      - "5432"
+      POSTGRES_DB: elephant_shop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     networks:
       - backend
     healthcheck:
@@ -27,10 +20,6 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: kupi_slona_redis
-    # Не публикуем порт наружу
-    expose:
-      - "6379"
     networks:
       - backend
     healthcheck:
@@ -42,14 +31,10 @@ services:
 
   web:
     build: .
-    container_name: kupi_slona_web
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120 --access-logfile - --error-logfile -
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
-    # Не публикуем порт наружу - доступ только через nginx
-    expose:
-      - "8000"
     env_file:
       - .env
     depends_on:
@@ -59,29 +44,36 @@ services:
         condition: service_healthy
     networks:
       - backend
-      - nginx-proxy  # Сеть для Nginx Proxy Manager
     restart: unless-stopped
 
   nginx:
     image: nginx:alpine
-    container_name: kupi_slona_nginx
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
-    # Этот порт будет виден Nginx Proxy Manager
-    expose:
-      - "80"
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
     depends_on:
       - web
     networks:
       - backend
-      - nginx-proxy  # Сеть для Nginx Proxy Manager
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     restart: unless-stopped
 
   celery_worker:
     build: .
-    container_name: kupi_slona_celery
     command: celery -A config worker --loglevel=info
     volumes:
       - media_volume:/app/media
@@ -100,9 +92,9 @@ volumes:
   postgres_data:
   static_volume:
   media_volume:
+  certbot_certs:
+  certbot_www:
 
 networks:
   backend:
     driver: bridge
-  nginx-proxy:
-    external: true  # Внешняя сеть для Nginx Proxy Manager

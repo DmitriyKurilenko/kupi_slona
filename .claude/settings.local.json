@@ -16,7 +16,8 @@
       "Bash(python3:*)",
       "Bash(grep:*)",
       "Bash(ls:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(chmod:*)"
     ]
   }
 }

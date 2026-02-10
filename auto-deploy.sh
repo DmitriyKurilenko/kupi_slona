@@ -16,7 +16,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 # Конфигурация
-COMPOSE_FILE="docker-compose.npm-simple.yml"
+COMPOSE_FILE="docker-compose.prod.yml"
 PROJECT_DIR="/root/kupi_slona"
 
 cd $PROJECT_DIR
@@ -34,46 +34,41 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-# 3. Создание сети если нужно
-if ! docker network ls | grep -q nginx-proxy; then
-    echo -e "${YELLOW}Creating nginx-proxy network...${NC}"
-    docker network create nginx-proxy
-fi
-
-# 4. Остановка старых контейнеров
+# 3. Остановка старых контейнеров
 echo -e "${YELLOW}🛑 Stopping old containers...${NC}"
 docker-compose -f $COMPOSE_FILE down || true
 
-# 5. Пересборка контейнеров
+# 4. Пересборка контейнеров
 echo -e "${YELLOW}🔨 Building containers...${NC}"
 docker-compose -f $COMPOSE_FILE build --no-cache web || {
     echo -e "${RED}❌ Build failed!${NC}"
     exit 1
 }
 
-# 6. Запуск сервисов
+# 5. Запуск сервисов
 echo -e "${YELLOW}🔄 Starting services...${NC}"
 docker-compose -f $COMPOSE_FILE up -d
 
-# 7. Ожидание запуска
+# 6. Ожидание запуска
 echo -e "${YELLOW}⏳ Waiting for services to start...${NC}"
 sleep 10
 
-# 8. Миграции
+# 7. Миграции
 echo -e "${YELLOW}🗄️  Running migrations...${NC}"
-docker exec kupi_slona_web python manage.py migrate --noinput || {
+WEB_CONTAINER=$(docker-compose -f $COMPOSE_FILE ps -q web)
+docker exec $WEB_CONTAINER python manage.py migrate --noinput || {
     echo -e "${RED}❌ Migrations failed!${NC}"
     exit 1
 }
 
-# 9. Сборка статики
+# 8. Сборка статики
 echo -e "${YELLOW}📦 Collecting static files...${NC}"
-docker exec kupi_slona_web python manage.py collectstatic --noinput || {
+docker exec $WEB_CONTAINER python manage.py collectstatic --noinput || {
     echo -e "${RED}❌ Collectstatic failed!${NC}"
     exit 1
 }
 
-# 10. Проверка статуса
+# 9. Проверка статуса
 echo ""
 echo -e "${YELLOW}📊 Services status:${NC}"
 docker-compose -f $COMPOSE_FILE ps
