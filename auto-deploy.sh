@@ -1,84 +1,82 @@
 #!/bin/bash
 
-# Скрипт автоматического деплоя для Kupi Slona
-# Использование на сервере: ./auto-deploy.sh
+# Деплой Kupi Slona
+# Использование: ./auto-deploy.sh
 
 set -e
 
-echo "🚀 Kupi Slona Auto-Deploy"
-echo "========================="
-echo ""
-
-# Цвета
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Конфигурация
 COMPOSE_FILE="docker-compose.prod.yml"
 PROJECT_DIR="/root/kupi_slona"
 
 cd $PROJECT_DIR
 
-# 1. Получение изменений
+# --- 1. Проверки ---
+
+if [ ! -f .env ]; then
+    echo -e "${RED}❌ .env не найден!${NC}"
+    exit 1
+fi
+
+if [ ! -f nginx/conf.d/default.conf ] || ! grep -q "ssl_certificate" nginx/conf.d/default.conf 2>/dev/null; then
+    echo -e "${RED}❌ SSL не настроен! Сначала запустите: ./init-letsencrypt.sh${NC}"
+    exit 1
+fi
+
+# --- 2. Обновление кода ---
+
 echo -e "${YELLOW}📥 Pulling latest changes...${NC}"
 git pull origin main || {
     echo -e "${RED}❌ Git pull failed!${NC}"
     exit 1
 }
 
-# 2. Проверка .env
-if [ ! -f .env ]; then
-    echo -e "${RED}❌ .env file not found!${NC}"
-    exit 1
-fi
+# --- 3. Сборка и запуск ---
 
-# 3. Остановка старых контейнеров
-echo -e "${YELLOW}🛑 Stopping old containers...${NC}"
-docker-compose -f $COMPOSE_FILE down || true
+echo -e "${YELLOW}🔨 Building...${NC}"
+docker-compose -f $COMPOSE_FILE build web
 
-# 4. Пересборка контейнеров
-echo -e "${YELLOW}🔨 Building containers...${NC}"
-docker-compose -f $COMPOSE_FILE build --no-cache web || {
-    echo -e "${RED}❌ Build failed!${NC}"
-    exit 1
-}
-
-# 5. Запуск сервисов
-echo -e "${YELLOW}🔄 Starting services...${NC}"
+echo -e "${YELLOW}🚀 Starting services...${NC}"
 docker-compose -f $COMPOSE_FILE up -d
 
-# 6. Ожидание запуска
-echo -e "${YELLOW}⏳ Waiting for services to start...${NC}"
+# --- 4. Ожидание готовности ---
+
+echo -e "${YELLOW}⏳ Waiting for services...${NC}"
 sleep 10
 
-# 7. Миграции
+# --- 5. Миграции и статика ---
+
 echo -e "${YELLOW}🗄️  Running migrations...${NC}"
-WEB_CONTAINER=$(docker-compose -f $COMPOSE_FILE ps -q web)
-docker exec $WEB_CONTAINER python manage.py migrate --noinput || {
+docker-compose -f $COMPOSE_FILE exec -T web python manage.py migrate --noinput || {
     echo -e "${RED}❌ Migrations failed!${NC}"
+    docker-compose -f $COMPOSE_FILE logs --tail=20 web
     exit 1
 }
 
-# 8. Сборка статики
 echo -e "${YELLOW}📦 Collecting static files...${NC}"
-docker exec $WEB_CONTAINER python manage.py collectstatic --noinput || {
-    echo -e "${RED}❌ Collectstatic failed!${NC}"
-    exit 1
-}
+docker-compose -f $COMPOSE_FILE exec -T web python manage.py collectstatic --noinput
 
-# 9. Проверка статуса
+# --- 6. Health check ---
+
+echo -e "${YELLOW}🏥 Health check...${NC}"
+sleep 3
+HEALTH=$(curl -sf http://localhost:8000/health/ 2>/dev/null || echo "fail")
+
+if echo "$HEALTH" | grep -q "healthy"; then
+    echo -e "${GREEN}✓ Health check passed${NC}"
+else
+    echo -e "${RED}⚠ Health check: $HEALTH${NC}"
+    echo "Проверьте логи: docker-compose -f $COMPOSE_FILE logs web"
+fi
+
+# --- 7. Статус ---
+
 echo ""
-echo -e "${YELLOW}📊 Services status:${NC}"
 docker-compose -f $COMPOSE_FILE ps
-
-# 10. Готово!
 echo ""
-echo -e "${GREEN}✅ Deployment completed successfully!${NC}"
-echo ""
-echo "📋 Quick commands:"
-echo "  Logs:    docker-compose -f $COMPOSE_FILE logs -f web"
-echo "  Restart: docker-compose -f $COMPOSE_FILE restart web"
-echo "  Shell:   docker-compose -f $COMPOSE_FILE exec web bash"
+echo -e "${GREEN}✅ Deploy completed!${NC}"
 echo ""
