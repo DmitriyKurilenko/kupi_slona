@@ -33,7 +33,18 @@
       "Bash(docker compose:*)",
       "Bash(docker builder prune:*)",
       "Bash(DEBUG=False docker compose up:*)",
-      "Bash(git ls-files:*)"
+      "Bash(git ls-files:*)",
+      "Bash(gh run list:*)",
+      "Bash(brew list:*)",
+      "Bash(docker build:*)",
+      "Bash(docker run:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git -C /Users/hvosdt/Documents/dev/kupi_slona add static/fonts/inter-latin-400.woff2)",
+      "Bash(python manage.py makemigrations:*)"
     ]
   }
 }

@@ -1,9 +1,10 @@
 """
-Core views for health checks and monitoring
+Core views for health checks, monitoring, and static pages
 """
 from django.http import JsonResponse
 from django.db import connection
 from django.core.cache import cache
+from django.views.generic import TemplateView
 
 
 def health_check(request):
@@ -45,3 +46,15 @@ def health_check(request):
         http_status = 503
 
     return JsonResponse(status, status=http_status)
+
+
+class TermsView(TemplateView):
+    template_name = 'legal/terms.html'
+
+
+class PrivacyView(TemplateView):
+    template_name = 'legal/privacy.html'
+
+
+class ContactsView(TemplateView):
+    template_name = 'legal/contacts.html'
