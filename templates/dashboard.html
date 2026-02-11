@@ -227,55 +227,71 @@
             <h2 class="mb-6 text-2xl font-bold text-gray-900">Моя коллекция</h2>
             <div class="space-y-3">
                 <template x-for="elephant in elephants" :key="elephant.id">
-                    <div class="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 transition hover:border-indigo-300 hover:shadow-sm">
-                        <!-- Image -->
-                        <div class="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-gray-50">
-                            <img :src="`/media/${elephant.image}`"
-                                 :alt="elephant.name"
-                                 class="h-full w-full object-contain">
-                        </div>
-
-                        <!-- Info -->
-                        <div class="min-w-0 flex-1">
-                            <div class="mb-1 flex items-center gap-3">
-                                <h3 class="text-base font-bold text-gray-900" x-text="elephant.name"></h3>
-                                <span class="font-mono text-sm text-gray-600" x-text="elephant.color_hex"></span>
+                    <div class="rounded-xl border border-gray-200 bg-white p-4 transition hover:border-indigo-300 hover:shadow-sm">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <!-- Image -->
+                            <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-gray-50 sm:h-20 sm:w-20">
+                                <img :src="`/media/${elephant.image}`"
+                                     :alt="elephant.name"
+                                     class="h-full w-full object-contain">
                             </div>
 
-                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
-                                <!-- Created date -->
-                                <span>
-                                    Создан: <span x-text="new Date(elephant.created_at).toLocaleDateString('ru-RU')"></span>
-                                </span>
+                            <!-- Info -->
+                            <div class="min-w-0 flex-1">
+                                <div class="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                    <h3 class="text-sm font-bold text-gray-900 sm:text-base" x-text="elephant.name"></h3>
+                                    <span class="font-mono text-xs text-gray-600 sm:text-sm" x-text="elephant.color_hex"></span>
+                                </div>
 
-                                <!-- Gift info - for owned elephants that were gifted -->
-                                <span x-show="elephant.is_gifted && elephant.is_owned_by_user" class="inline-flex items-center gap-1 rounded-full bg-pink-50 px-2 py-0.5 font-medium text-pink-700">
-                                    Подарено: <span x-text="elephant.gift_recipient"></span>
-                                    <span x-show="elephant.gift_date">
-                                        (<span x-text="new Date(elephant.gift_date).toLocaleDateString('ru-RU')"></span>)
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                                    <!-- Created date -->
+                                    <span>
+                                        Создан: <span x-text="new Date(elephant.created_at).toLocaleDateString('ru-RU')"></span>
                                     </span>
-                                </span>
 
-                                <!-- Gift accepted badge - for elephants gifted away and claimed -->
-                                <span x-show="!elephant.is_owned_by_user && elephant.is_gifted" class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 font-medium text-green-700">
-                                    Подарок принят: <span x-text="elephant.gift_recipient"></span>
-                                    <span x-show="elephant.gift_date">
-                                        (<span x-text="new Date(elephant.gift_date).toLocaleDateString('ru-RU')"></span>)
+                                    <!-- Gift info - for owned elephants that were gifted -->
+                                    <span x-show="elephant.is_gifted && elephant.is_owned_by_user" class="inline-flex items-center gap-1 rounded-full bg-pink-50 px-2 py-0.5 font-medium text-pink-700">
+                                        Подарено: <span x-text="elephant.gift_recipient"></span>
+                                        <span x-show="elephant.gift_date">
+                                            (<span x-text="new Date(elephant.gift_date).toLocaleDateString('ru-RU')"></span>)
+                                        </span>
                                     </span>
-                                </span>
+
+                                    <!-- Gift accepted badge - for elephants gifted away and claimed -->
+                                    <span x-show="!elephant.is_owned_by_user && elephant.is_gifted" class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 font-medium text-green-700">
+                                        Подарок принят: <span x-text="elephant.gift_recipient"></span>
+                                        <span x-show="elephant.gift_date">
+                                            (<span x-text="new Date(elephant.gift_date).toLocaleDateString('ru-RU')"></span>)
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Actions: visible only on sm+ -->
+                            <div class="hidden flex-shrink-0 gap-2 sm:flex">
+                                <button @click="downloadElephant(elephant.id)"
+                                        :disabled="!elephant.is_owned_by_user"
+                                        class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40">
+                                    Скачать
+                                </button>
+                                <button @click="openGiftModal(elephant)"
+                                        :disabled="elephant.is_gifted || !elephant.is_owned_by_user"
+                                        class="rounded-lg border-2 border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-40">
+                                    Подарить
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Actions -->
-                        <div class="flex flex-shrink-0 gap-2">
+                        <!-- Actions: mobile only, full-width row below -->
+                        <div class="mt-3 flex gap-2 sm:hidden">
                             <button @click="downloadElephant(elephant.id)"
                                     :disabled="!elephant.is_owned_by_user"
-                                    class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40">
+                                    class="flex-1 rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40">
                                 Скачать
                             </button>
                             <button @click="openGiftModal(elephant)"
                                     :disabled="elephant.is_gifted || !elephant.is_owned_by_user"
-                                    class="rounded-lg border-2 border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-40">
+                                    class="flex-1 rounded-lg border-2 border-indigo-200 px-3 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-40">
                                 Подарить
                             </button>
                         </div>
