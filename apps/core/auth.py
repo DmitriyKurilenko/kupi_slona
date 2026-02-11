@@ -1,21 +1,26 @@
 """
 Centralized authentication for django-ninja API endpoints.
-django-ninja auth= accepts any callable that returns a truthy value or None.
+Uses HttpBearer as base (available in ninja.security) but overrides
+__call__ to check Django session instead of Bearer token header.
 """
+from ninja.security import HttpBearer
 
 
-def auth(request):
+class SessionAuth(HttpBearer):
     """
-    Session-based authentication callable for django-ninja.
-
-    Usage:
-        from apps.core.auth import auth
-
-        @router.get("/", auth=auth)
-        def my_endpoint(request):
-            # request.user is guaranteed to be authenticated
-            pass
+    Session-based authentication for django-ninja.
+    Overrides HttpBearer.__call__ to skip bearer token check
+    and use Django session cookies instead.
     """
-    if request.user.is_authenticated:
-        return request.user
-    return None
+    def __call__(self, request):
+        # Skip HttpBearer's Authorization header check,
+        # go straight to session-based authentication
+        return self.authenticate(request, None)
+
+    def authenticate(self, request, token):
+        if request.user.is_authenticated:
+            return request.user
+        return None
+
+
+auth = SessionAuth()
