@@ -9,13 +9,10 @@ from ninja import NinjaAPI
 from apps.core import views as core_views
 
 # Initialize Django Ninja API
-# csrf=True required when using django_auth (session/cookie-based authentication)
-# https://django-ninja.dev/guides/authentication/#django-session-auth
 api = NinjaAPI(
     title="Elephant Color Shop API",
     version="1.0.0",
     description="API для покупки уникальных цветных слонов",
-    csrf=True,
 )
 
 # Import API routers
