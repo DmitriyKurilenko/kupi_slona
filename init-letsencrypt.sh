@@ -105,7 +105,7 @@ echo -e "${YELLOW}🔐 Requesting SSL certificate for ${DOMAIN}...${NC}"
 echo "This may take 30-60 seconds..."
 echo ""
 
-if docker-compose -f $COMPOSE_FILE run --rm certbot certonly \
+if docker-compose -f $COMPOSE_FILE run --rm --entrypoint certbot certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \
     --email $SSL_EMAIL \
@@ -257,7 +257,7 @@ echo "  (будет автоматически проверять сертифи
 # 8. Проверка сертификата
 echo ""
 echo -e "${YELLOW}🔍 Verifying certificate installation...${NC}"
-CERT_INFO=$(docker-compose -f $COMPOSE_FILE run --rm certbot certificates 2>/dev/null | grep -A 5 "$DOMAIN" | head -6)
+CERT_INFO=$(docker-compose -f $COMPOSE_FILE run --rm --entrypoint certbot certbot certificates 2>/dev/null | grep -A 5 "$DOMAIN" | head -6)
 
 if echo "$CERT_INFO" | grep -q "$DOMAIN"; then
     echo -e "${GREEN}✓ Certificate successfully installed!${NC}"
@@ -269,7 +269,7 @@ else
     echo "Certificate not found for domain: $DOMAIN"
     echo ""
     echo "Trying to get certificate list..."
-    docker-compose -f $COMPOSE_FILE run --rm certbot certificates 2>&1 | head -20
+    docker-compose -f $COMPOSE_FILE run --rm --entrypoint certbot certbot certificates 2>&1 | head -20
     exit 1
 fi
 
