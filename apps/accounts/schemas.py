@@ -6,14 +6,13 @@ from ninja import Schema
 
 class RegisterSchema(Schema):
     """Схема регистрации"""
-    username: str
     email: str
     password: str
 
 
 class LoginSchema(Schema):
     """Схема входа"""
-    username: str
+    email: str
     password: str
 
 

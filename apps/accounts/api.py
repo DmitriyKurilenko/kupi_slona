@@ -1,6 +1,8 @@
 """
 API endpoints for authentication
 """
+import uuid
+
 from ninja import Router
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -24,9 +26,16 @@ def register(request, payload: RegisterSchema):
         except DjangoValidationError as e:
             return 400, {"message": " ".join(e.messages)}
 
-        # Создаём пользователя
+        if User.objects.filter(email=payload.email).exists():
+            return 400, {"message": "Пользователь с таким email уже существует"}
+
+        # Генерируем username из email
+        username = payload.email.split('@')[0][:30]
+        if User.objects.filter(username=username).exists():
+            username = f"{username}_{uuid.uuid4().hex[:6]}"
+
         user = User.objects.create_user(
-            username=payload.username,
+            username=username,
             email=payload.email,
             password=payload.password
         )
@@ -37,7 +46,7 @@ def register(request, payload: RegisterSchema):
         return 201, user
 
     except IntegrityError:
-        return 400, {"message": "Пользователь с таким именем уже существует"}
+        return 400, {"message": "Пользователь с таким email уже существует"}
     except Exception as e:
         return 400, {"message": str(e)}
 
@@ -47,7 +56,7 @@ def login_user(request, payload: LoginSchema):
     """Вход пользователя"""
     user = authenticate(
         request,
-        username=payload.username,
+        username=payload.email,
         password=payload.password
     )
 
@@ -55,7 +64,7 @@ def login_user(request, payload: LoginSchema):
         login(request, user)
         return 200, user
     else:
-        return 401, {"message": "Неверное имя пользователя или пароль"}
+        return 401, {"message": "Неверный email или пароль"}
 
 
 @router.post("/logout", response=MessageSchema)

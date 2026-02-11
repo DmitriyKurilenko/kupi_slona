@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.apple',
 
     # Local apps
     'apps.accounts',
@@ -203,10 +202,10 @@ LOGOUT_REDIRECT_URL = '/'
 SITE_ID = 1
 
 # Account settings
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
-ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_UNIQUE_EMAIL = True
 
 # Social account settings
@@ -224,15 +223,6 @@ SOCIALACCOUNT_PROVIDERS = {
             'secret': env('GOOGLE_CLIENT_SECRET', default=''),
         }
     },
-    'apple': {
-        'APP': {
-            'client_id': env('APPLE_CLIENT_ID', default=''),
-            'secret': env('APPLE_CLIENT_SECRET', default=''),
-            'key': env('APPLE_KEY_ID', default=''),
-            'certificate_key': env('APPLE_PRIVATE_KEY', default='').replace('\\n', '\n'),
-        },
-        'SCOPE': ['name', 'email'],
-    }
 }
 
 # Custom adapters

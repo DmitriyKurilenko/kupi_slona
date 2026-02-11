@@ -42,8 +42,14 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def populate_user(self, request, sociallogin, data):
         """Populate user with data from provider"""
         user = super().populate_user(request, sociallogin, data)
-        if not user.first_name:
-            user.first_name = data.get('first_name', '')
-        if not user.last_name:
-            user.last_name = data.get('last_name', '')
+        # Google may return None for name fields — ensure they're never NULL
+        user.first_name = user.first_name or data.get('first_name') or ''
+        user.last_name = user.last_name or data.get('last_name') or ''
         return user
+
+    def save_user(self, request, sociallogin, form=None):
+        """Ensure name fields are never NULL before saving"""
+        user = sociallogin.user
+        user.first_name = user.first_name or ''
+        user.last_name = user.last_name or ''
+        return super().save_user(request, sociallogin, form)
