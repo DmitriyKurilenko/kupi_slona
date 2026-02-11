@@ -1,15 +1,15 @@
 """
 Centralized authentication utilities for django-ninja API endpoints
 """
-from ninja.security import HttpBearer
-from typing import Optional
-from django.contrib.auth.models import User
+from ninja.security import HttpAuthBase
+from typing import Optional, Any
+from django.http import HttpRequest
 
 
-class AuthBearer(HttpBearer):
+class SessionAuth(HttpAuthBase):
     """
-    Authentication bearer for django-ninja
-    Replaces manual is_authenticated checks across 11+ endpoints
+    Session-based authentication for django-ninja.
+    Checks Django session cookies instead of Bearer tokens.
 
     Usage:
         from apps.core.auth import auth
@@ -19,21 +19,11 @@ class AuthBearer(HttpBearer):
             # request.user is guaranteed to be authenticated
             pass
     """
-    def authenticate(self, request, token: Optional[str] = None) -> Optional[User]:
-        """
-        Authenticate request based on session
-
-        Args:
-            request: Django HttpRequest
-            token: Optional bearer token (not used for session auth)
-
-        Returns:
-            User object if authenticated, None otherwise
-        """
+    def __call__(self, request: HttpRequest) -> Optional[Any]:
         if request.user.is_authenticated:
             return request.user
         return None
 
 
 # Singleton instance to be imported across the project
-auth = AuthBearer()
+auth = SessionAuth()
