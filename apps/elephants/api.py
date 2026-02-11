@@ -60,3 +60,40 @@ def download_elephant(request, elephant_id: int):
         return 404, {"message": "Слон не найден"}
     except PermissionError:
         return 403, {"message": "Доступ запрещён"}
+
+
+@router.get("/lookup/", response={200: ElephantLookupSchema, 404: MessageSchema})
+def lookup_elephant(request, q: str = Query(...)):
+    """Public lookup: find elephant by color hex or name (case-insensitive)"""
+    query = q.strip()
+    if not query:
+        return 404, {"message": "Введите цвет или имя слона"}
+
+    # Try as HEX color
+    hex_match = re.match(r'^#?([0-9a-fA-F]{6})$', query)
+    if hex_match:
+        color_hex = f"#{hex_match.group(1).upper()}"
+        try:
+            elephant = Elephant.objects.select_related('owner').get(color_hex=color_hex)
+            return 200, elephant
+        except Elephant.DoesNotExist:
+            return 404, {"message": f"Слон с цветом {color_hex} не найден. Этот цвет ещё свободен!"}
+
+    # Search by name (case-insensitive)
+    query_lower = query.lower()
+    for elephant in Elephant.objects.select_related('owner').all():
+        if elephant.get_name().lower() == query_lower:
+            return 200, elephant
+
+    # Partial match
+    results = []
+    for elephant in Elephant.objects.select_related('owner').all():
+        if query_lower in elephant.get_name().lower():
+            results.append(elephant)
+
+    if len(results) == 1:
+        return 200, results[0]
+    elif len(results) > 1:
+        return 404, {"message": f"Найдено {len(results)} слонов. Уточните запрос."}
+
+    return 404, {"message": "Слон не найден"}

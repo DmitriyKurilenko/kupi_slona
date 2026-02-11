@@ -58,3 +58,7 @@ class PrivacyView(TemplateView):
 
 class ContactsView(TemplateView):
     template_name = 'legal/contacts.html'
+
+
+class CheckElephantView(TemplateView):
+    template_name = 'check.html'

@@ -106,3 +106,31 @@ class ElephantDetailSchema(Schema):
     def resolve_order_id(obj):
         """ID заказа"""
         return obj.order.id if obj.order else None
+
+
+class ElephantLookupSchema(Schema):
+    """Public lookup result"""
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str
+    color_hex: str
+    color_display: str
+    owner_name: str
+    image_url: Optional[str] = None
+    created_at: datetime
+
+    @staticmethod
+    def resolve_name(obj):
+        return obj.get_name()
+
+    @staticmethod
+    def resolve_color_display(obj):
+        return obj.get_color_display()
+
+    @staticmethod
+    def resolve_owner_name(obj):
+        return obj.owner.username
+
+    @staticmethod
+    def resolve_image_url(obj):
+        return obj.image.url if obj.image else None
