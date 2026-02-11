@@ -1,15 +1,12 @@
 """
-Centralized authentication utilities for django-ninja API endpoints
+Centralized authentication for django-ninja API endpoints.
+django-ninja auth= accepts any callable that returns a truthy value or None.
 """
-from ninja.security import HttpAuthBase
-from typing import Optional, Any
-from django.http import HttpRequest
 
 
-class SessionAuth(HttpAuthBase):
+def auth(request):
     """
-    Session-based authentication for django-ninja.
-    Checks Django session cookies instead of Bearer tokens.
+    Session-based authentication callable for django-ninja.
 
     Usage:
         from apps.core.auth import auth
@@ -19,11 +16,6 @@ class SessionAuth(HttpAuthBase):
             # request.user is guaranteed to be authenticated
             pass
     """
-    def __call__(self, request: HttpRequest) -> Optional[Any]:
-        if request.user.is_authenticated:
-            return request.user
-        return None
-
-
-# Singleton instance to be imported across the project
-auth = SessionAuth()
+    if request.user.is_authenticated:
+        return request.user
+    return None
