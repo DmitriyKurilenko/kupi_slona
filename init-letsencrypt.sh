@@ -176,7 +176,7 @@ server {
     }
 
     location ~ ^/(accounts|api/auth)/ {
-        limit_req zone=auth burst=3 nodelay;
+        limit_req zone=auth burst=10 nodelay;
         limit_req_status 429;
         proxy_pass http://django;
         proxy_set_header Host \$host;
