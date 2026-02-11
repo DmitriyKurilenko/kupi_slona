@@ -29,9 +29,6 @@ db.sqlite3-journal
 /media
 /staticfiles
 /static_cdn
-/apps/elephants/migrations
-/apps/gifts/migrations
-/apps/payments/migrations
 # Environment
 .env
 .env.local
@@ -108,5 +105,4 @@ id_ed25519*
 *.backup
 
 # Cloude AI files
-/.claude
-.claude/settings.local.json
+.claude/
