@@ -6,10 +6,11 @@
 import { getCookie } from './utils.js';
 
 /**
- * Base fetch wrapper with CSRF token
+ * Base fetch wrapper with CSRF token and error handling
  * @param {string} url - API endpoint URL
  * @param {Object} options - Fetch options
- * @returns {Promise<Response>}
+ * @returns {Promise<Object>} Parsed JSON response
+ * @throws {Error} If response is not ok (4xx/5xx)
  */
 async function apiFetch(url, options = {}) {
     const csrfToken = getCookie('csrftoken');
@@ -22,10 +23,21 @@ async function apiFetch(url, options = {}) {
         headers['X-CSRFToken'] = csrfToken;
     }
 
-    return fetch(url, {
+    const response = await fetch(url, {
         ...options,
         headers
     });
+
+    if (!response.ok) {
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+            const data = await response.json();
+            errorMessage = data.message || data.detail || errorMessage;
+        } catch {}
+        throw new Error(errorMessage);
+    }
+
+    return response.json();
 }
 
 /**
@@ -39,14 +51,13 @@ export const ordersAPI = {
      * @returns {Promise<Object>} Order data
      */
     async create(tariffName, desiredColor = null) {
-        const response = await apiFetch('/api/orders', {
+        return apiFetch('/api/orders', {
             method: 'POST',
             body: JSON.stringify({
                 tariff_name: tariffName,
                 desired_color: desiredColor
             })
         });
-        return response.json();
     },
 
     /**
@@ -54,8 +65,7 @@ export const ordersAPI = {
      * @returns {Promise<Array>} List of orders
      */
     async list() {
-        const response = await apiFetch('/api/orders');
-        return response.json();
+        return apiFetch('/api/orders');
     },
 
     /**
@@ -64,8 +74,7 @@ export const ordersAPI = {
      * @returns {Promise<Object>} Order data
      */
     async get(orderId) {
-        const response = await apiFetch(`/api/orders/${orderId}`);
-        return response.json();
+        return apiFetch(`/api/orders/${orderId}`);
     }
 };
 
@@ -78,8 +87,7 @@ export const elephantsAPI = {
      * @returns {Promise<Array>} List of elephants
      */
     async list() {
-        const response = await apiFetch('/api/elephants');
-        return response.json();
+        return apiFetch('/api/elephants');
     },
 
     /**
@@ -88,8 +96,7 @@ export const elephantsAPI = {
      * @returns {Promise<Object>} Elephant data
      */
     async get(elephantId) {
-        const response = await apiFetch(`/api/elephants/${elephantId}`);
-        return response.json();
+        return apiFetch(`/api/elephants/${elephantId}`);
     },
 
     /**
@@ -116,11 +123,10 @@ export const giftsAPI = {
      * @returns {Promise<Object>} Gift link data
      */
     async create(giftData) {
-        const response = await apiFetch('/api/gifts/', {
+        return apiFetch('/api/gifts/', {
             method: 'POST',
             body: JSON.stringify(giftData)
         });
-        return response.json();
     },
 
     /**
@@ -128,8 +134,7 @@ export const giftsAPI = {
      * @returns {Promise<Array>} List of sent gifts
      */
     async listSent() {
-        const response = await apiFetch('/api/gifts/sent');
-        return response.json();
+        return apiFetch('/api/gifts/sent');
     },
 
     /**
@@ -138,8 +143,7 @@ export const giftsAPI = {
      * @returns {Promise<Object>} Public gift data
      */
     async getPublic(uuid) {
-        const response = await apiFetch(`/api/gifts/public/${uuid}`);
-        return response.json();
+        return apiFetch(`/api/gifts/public/${uuid}`);
     },
 
     /**
@@ -148,9 +152,8 @@ export const giftsAPI = {
      * @returns {Promise<Object>} Claim response
      */
     async claim(uuid) {
-        const response = await apiFetch(`/api/gifts/public/${uuid}/claim`, {
+        return apiFetch(`/api/gifts/public/${uuid}/claim`, {
             method: 'POST'
         });
-        return response.json();
     }
 };

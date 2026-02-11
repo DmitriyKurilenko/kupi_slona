@@ -106,3 +106,6 @@ id_ed25519*
 *.sql
 *.dump
 *.backup
+
+# Cloude AI files
+/.claude

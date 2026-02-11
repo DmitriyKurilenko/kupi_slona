@@ -8,11 +8,15 @@ while ! nc -z $DB_HOST $DB_PORT; do
 done
 echo "PostgreSQL started"
 
-echo "Running migrations..."
-python manage.py migrate --noinput
+# Only run migrations and collectstatic for the web service (gunicorn)
+# Celery workers should NOT run these to avoid race conditions
+if echo "$@" | grep -q "gunicorn"; then
+    echo "Running migrations..."
+    python manage.py migrate --noinput
 
-echo "Collecting static files..."
-python manage.py collectstatic --noinput --clear
+    echo "Collecting static files..."
+    python manage.py collectstatic --noinput
+fi
 
 echo "Starting application..."
 exec "$@"
