@@ -1,13 +1,15 @@
 """
 API endpoints for elephants
 """
-from ninja import Router
+import re
+
+from ninja import Router, Query
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse, HttpResponse
 
 from .models import Elephant
 from .services import get_user_elephants, get_elephant_by_id
-from .schemas import ElephantListSchema, ElephantDetailSchema
+from .schemas import ElephantListSchema, ElephantDetailSchema, ElephantLookupSchema
 from apps.accounts.schemas import MessageSchema
 from apps.core.auth import auth
 

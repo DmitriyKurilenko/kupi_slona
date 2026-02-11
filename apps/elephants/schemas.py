@@ -24,6 +24,7 @@ class ElephantListSchema(Schema):
     is_owned_by_user: bool
     gift_recipient: Optional[str] = None
     gift_date: Optional[datetime] = None
+    gift_uuid: Optional[str] = None
     created_at: datetime
 
     @staticmethod
@@ -58,6 +59,13 @@ class ElephantListSchema(Schema):
         """Дата создания подарка"""
         if obj.is_gifted and hasattr(obj, 'gift_link'):
             return obj.gift_link.created_at
+        return None
+
+    @staticmethod
+    def resolve_gift_uuid(obj):
+        """UUID подарочной ссылки"""
+        if obj.is_gifted and hasattr(obj, 'gift_link'):
+            return str(obj.gift_link.uuid)
         return None
 
 
