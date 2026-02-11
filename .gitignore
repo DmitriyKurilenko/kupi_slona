@@ -109,3 +109,4 @@ id_ed25519*
 
 # Cloude AI files
 /.claude
+.claude/settings.local.json

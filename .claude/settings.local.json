@@ -25,7 +25,10 @@
       "Bash(sysctl:*)",
       "Bash(git -C /Users/hvosdt/Documents/dev/kupi_slona log --all --pretty=format:\"%H %s\")",
       "Bash(git ls-tree:*)",
-      "Bash(python -c:*)"
+      "Bash(python -c:*)",
+      "WebFetch(domain:django-ninja.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
