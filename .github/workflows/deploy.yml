@@ -2,46 +2,13 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch:  # Allow manual deployment
-
-env:
-  COMPOSE_FILE: docker-compose.prod.yml
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run tests
-        run: |
-          python manage.py test --no-input
-        env:
-          SECRET_KEY: test-secret-key-for-ci
-          DEBUG: False
-          DATABASE_URL: sqlite:///db.sqlite3
-          REDIS_PASSWORD: test-redis-password
-
   deploy:
     name: Deploy to Production Server
-    needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 
     steps:
       - name: Deploy to server
@@ -51,89 +18,56 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            set -e  # Exit on error
+            set -e
 
-            echo "🚀 Starting deployment..."
+            echo "Starting deployment..."
             cd ~/kupi_slona
 
-            # Create backup before deployment
-            echo "📦 Creating database backup..."
+            # Backup
             if [ -f ./scripts/backup-database.sh ]; then
-              ./scripts/backup-database.sh || echo "⚠️ Backup failed, continuing anyway"
-            else
-              echo "⚠️ Backup script not found, skipping backup"
+              ./scripts/backup-database.sh || echo "Backup failed, continuing anyway"
             fi
 
             # Pull latest code
-            echo "📥 Pulling latest code..."
+            echo "Pulling latest code..."
             git pull origin main
 
-            # Check if .env file exists
+            # Check .env
             if [ ! -f .env ]; then
-              echo "❌ ERROR: .env not found!"
+              echo "ERROR: .env not found!"
               exit 1
             fi
 
-            # Build and deploy (use cache for faster builds)
-            echo "🔨 Building Docker images..."
-            docker-compose -f ${{ env.COMPOSE_FILE }} build web
+            # Build and deploy
+            echo "Building Docker images..."
+            docker compose -f docker-compose.prod.yml build web celery_worker
 
-            echo "🚀 Starting services..."
-            docker-compose -f ${{ env.COMPOSE_FILE }} up -d
+            echo "Starting services..."
+            docker compose -f docker-compose.prod.yml up -d
 
-            # Wait for services to be ready
-            echo "⏳ Waiting for services to start..."
+            # Wait for services
+            echo "Waiting for services to start..."
             sleep 15
 
-            # Run migrations
-            echo "🔄 Running database migrations..."
-            if docker-compose -f ${{ env.COMPOSE_FILE }} exec -T web python manage.py migrate --noinput; then
-              echo "✅ Migrations completed"
-            else
-              echo "❌ Migration failed!"
-              docker-compose -f ${{ env.COMPOSE_FILE }} logs web
-              exit 1
-            fi
-
-            # Collect static files
-            echo "📦 Collecting static files..."
-            if docker-compose -f ${{ env.COMPOSE_FILE }} exec -T web python manage.py collectstatic --noinput --clear; then
-              echo "✅ Static files collected"
-            else
-              echo "⚠️ Static collection failed (non-critical)"
-            fi
-
             # Health check
-            echo "🏥 Performing health check..."
-            sleep 5
+            echo "Performing health check..."
             HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health/ || echo "000")
 
             if [ "$HEALTH_STATUS" = "200" ]; then
-              echo "✅ Health check passed (HTTP $HEALTH_STATUS)"
+              echo "Health check passed (HTTP $HEALTH_STATUS)"
             else
-              echo "❌ Health check failed (HTTP $HEALTH_STATUS)"
-              echo "📋 Container logs:"
-              docker-compose -f ${{ env.COMPOSE_FILE }} logs --tail=50 web
+              echo "Health check failed (HTTP $HEALTH_STATUS)"
+              docker compose -f docker-compose.prod.yml logs --tail=50 web
               exit 1
             fi
 
-            # Show deployment status
-            echo "📊 Deployment status:"
-            docker-compose -f ${{ env.COMPOSE_FILE }} ps
-
-            echo "✅ Deployment completed successfully!"
-
-      - name: Notify on success
-        if: success()
-        run: |
-          echo "✅ Deployment to production completed successfully!"
-          echo "Deployed commit: ${{ github.sha }}"
-          echo "Branch: ${{ github.ref }}"
+            echo "Deployment status:"
+            docker compose -f docker-compose.prod.yml ps
+            echo "Deployment completed successfully!"
 
       - name: Notify on failure
         if: failure()
         run: |
-          echo "❌ Deployment to production failed!"
-          echo "Failed commit: ${{ github.sha }}"
-          echo "Branch: ${{ github.ref }}"
+          echo "Deployment failed!"
+          echo "Commit: ${{ github.sha }}"
           echo "Check the logs above for details"

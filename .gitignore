@@ -104,5 +104,8 @@ id_ed25519*
 *.dump
 *.backup
 
+# Build artifacts
+static/css/tailwind.css
+
 # Cloude AI files
 .claude/

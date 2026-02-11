@@ -33,6 +33,18 @@ RUN pip install --upgrade pip && \
 # Copy project
 COPY . .
 
+# Build Tailwind CSS (standalone CLI, no Node.js needed)
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then \
+      TW_ARCH="linux-arm64"; \
+    else \
+      TW_ARCH="linux-x64"; \
+    fi && \
+    curl -sLO "https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.17/tailwindcss-${TW_ARCH}" && \
+    chmod +x "tailwindcss-${TW_ARCH}" && \
+    "./tailwindcss-${TW_ARCH}" -i static/css/input.css -o static/css/tailwind.css --minify && \
+    rm "tailwindcss-${TW_ARCH}"
+
 # Create necessary directories
 RUN mkdir -p /app/media/elephants /app/staticfiles /app/logs && \
     chmod +x /app/entrypoint.sh
