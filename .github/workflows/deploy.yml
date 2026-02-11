@@ -56,17 +56,20 @@ jobs:
 
             # Wait for services
             echo "Waiting for services to start..."
-            sleep 15
+            sleep 20
 
-            # Health check
+            # Health check (via nginx on port 443, -k to skip cert verification from localhost)
             echo "Performing health check..."
-            HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health/ || echo "000")
+            HEALTH_STATUS=$(curl -sk -o /dev/null -w "%{http_code}" https://localhost/health/ || echo "000")
 
             if [ "$HEALTH_STATUS" = "200" ]; then
               echo "Health check passed (HTTP $HEALTH_STATUS)"
             else
               echo "Health check failed (HTTP $HEALTH_STATUS)"
-              docker compose -f docker-compose.prod.yml logs --tail=50 web
+              echo "--- web logs ---"
+              docker compose -f docker-compose.prod.yml logs --tail=30 web
+              echo "--- nginx logs ---"
+              docker compose -f docker-compose.prod.yml logs --tail=30 nginx
               exit 1
             fi
 
