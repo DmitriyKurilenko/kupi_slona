@@ -30,12 +30,21 @@ jobs:
 
             # Pull latest code
             echo "Pulling latest code..."
+            # nginx config is modified locally by init-letsencrypt.sh — reset before pull
+            git checkout -- nginx/conf.d/default.conf || true
             git pull origin main
 
             # Check .env
             if [ ! -f .env ]; then
               echo "ERROR: .env not found!"
               exit 1
+            fi
+
+            # Re-apply domain to nginx config from .env
+            DOMAIN=$(grep '^DOMAIN=' .env | cut -d'=' -f2)
+            if [ -n "$DOMAIN" ]; then
+              echo "Applying domain $DOMAIN to nginx config..."
+              sed -i "s/slon\.prvms\.ru/$DOMAIN/g" nginx/conf.d/default.conf
             fi
 
             # Build and deploy
