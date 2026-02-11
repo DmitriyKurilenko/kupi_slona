@@ -8,7 +8,6 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -103,5 +102,16 @@
     </footer>
 
     {% block extra_scripts %}{% endblock %}
+
+    <!-- Alpine.js loaded as ES module AFTER extra_scripts to ensure
+         child template modules (setting window.* component functions)
+         execute first, then Alpine starts and finds them -->
+    <script type="module">
+    import collapse from 'https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.13.3/dist/module.esm.js';
+    import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/module.esm.js';
+    Alpine.plugin(collapse);
+    window.Alpine = Alpine;
+    Alpine.start();
+    </script>
 </body>
 </html>
