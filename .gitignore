@@ -92,4 +92,17 @@ yarn-debug.log*
 yarn-error.log*
 test_names.py
 note
-nginx/conf.d/default.conf
+
+# Security - Never commit these
+*.pem
+*.key
+*.p8
+id_rsa*
+id_ed25519*
+*.crt
+*.csr
+
+# Backup files
+*.sql
+*.dump
+*.backup

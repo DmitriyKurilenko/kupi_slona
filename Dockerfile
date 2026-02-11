@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     gcc \
     netcat-openbsd \
+    curl \
     libcairo2 \
     libpango-1.0-0 \
     libpangocairo-1.0-0 \
@@ -29,14 +30,19 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
 # Copy project
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p /app/media/elephants /app/staticfiles
+# Create necessary directories and set permissions
+RUN mkdir -p /app/media/elephants /app/staticfiles /app/logs && \
+    chown -R appuser:appuser /app && \
+    chmod +x /app/entrypoint.sh
 
-# Make entrypoint executable
-RUN chmod +x /app/entrypoint.sh
+# Switch to non-root user
+USER appuser
 
 # Run entrypoint
 ENTRYPOINT ["/app/entrypoint.sh"]

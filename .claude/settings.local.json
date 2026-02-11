@@ -17,7 +17,14 @@
       "Bash(grep:*)",
       "Bash(ls:*)",
       "Bash(wc:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(find:*)",
+      "Bash(git -C /Users/hvosdt/Documents/dev/kupi_slona log --all --full-history --oneline -- .env.slon.prvms.ru)",
+      "Bash(git -C /Users/hvosdt/Documents/dev/kupi_slona log --all --pretty=format:\"%H\" -- .env.slon.prvms.ru)",
+      "Bash(git -C /Users/hvosdt/Documents/dev/kupi_slona ls-files)",
+      "Bash(sysctl:*)",
+      "Bash(git -C /Users/hvosdt/Documents/dev/kupi_slona log --all --pretty=format:\"%H %s\")",
+      "Bash(git ls-tree:*)"
     ]
   }
 }

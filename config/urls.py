@@ -6,6 +6,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from ninja import NinjaAPI
+from apps.core import views as core_views
 
 # Initialize Django Ninja API
 api = NinjaAPI(
@@ -29,6 +30,8 @@ api.add_router("/gifts/", gifts_router)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
+    # Health check endpoint
+    path('health/', core_views.health_check, name='health_check'),
     # Allauth URLs (must come BEFORE custom accounts URLs)
     path('accounts/', include('allauth.urls')),
     # Django views
