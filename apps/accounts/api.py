@@ -32,7 +32,7 @@ def register(request, payload: RegisterSchema):
         )
 
         # Автоматически входим
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
         return 201, user
 

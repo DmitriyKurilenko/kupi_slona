@@ -76,7 +76,7 @@ class RegisterView(View):
             print(f"DEBUG: User created successfully: {user.id}", file=sys.stderr, flush=True)
 
             print(f"DEBUG: Attempting login for user {user.username}", file=sys.stderr, flush=True)
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             print(f"DEBUG: Login successful", file=sys.stderr, flush=True)
 
             messages.success(request, 'Добро пожаловать!')
