@@ -7,7 +7,7 @@ set -e
 # Configuration
 BACKUP_DIR="${BACKUP_DIR:-/backups/postgres}"
 PROJECT_DIR="${PROJECT_DIR:-/root/kupi_slona}"
-ENV_FILE="${ENV_FILE:-$PROJECT_DIR/.env.slon.prvms.ru}"
+ENV_FILE="${ENV_FILE:-$PROJECT_DIR/.env}"
 COMPOSE_FILE="${COMPOSE_FILE:-$PROJECT_DIR/docker-compose.prod.yml}"
 
 # Colors for output

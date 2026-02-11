@@ -69,8 +69,8 @@ jobs:
             git pull origin main
 
             # Check if .env file exists
-            if [ ! -f .env.slon.prvms.ru ]; then
-              echo "❌ ERROR: .env.slon.prvms.ru not found!"
+            if [ ! -f .env ]; then
+              echo "❌ ERROR: .env not found!"
               exit 1
             fi
 

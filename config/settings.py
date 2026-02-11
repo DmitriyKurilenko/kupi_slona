@@ -254,14 +254,13 @@ if not DEBUG:
 # Session Security
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_SAVE_EVERY_REQUEST = True
 
 # CSRF Security
-CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY must be False - frontend JS reads CSRF token via getCookie()
+CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_USE_SESSIONS = True
 
 # Logging Configuration
 LOGGING = {

@@ -30,19 +30,12 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-
 # Copy project
 COPY . .
 
-# Create necessary directories and set permissions
+# Create necessary directories
 RUN mkdir -p /app/media/elephants /app/staticfiles /app/logs && \
-    chown -R appuser:appuser /app && \
     chmod +x /app/entrypoint.sh
-
-# Switch to non-root user
-USER appuser
 
 # Run entrypoint
 ENTRYPOINT ["/app/entrypoint.sh"]

@@ -23,7 +23,7 @@
 - [ ] ✅ DEBUG=False in production `.env` file
 - [ ] ✅ ALLOWED_HOSTS set to your domain only
 - [ ] ✅ OAuth credentials obtained from providers
-- [ ] ⚠️ **NEVER commit `.env.slon.prvms.ru` or similar files to git!**
+- [ ] ⚠️ **NEVER commit `.env` with real credentials to git!**
 
 ---
 
@@ -41,10 +41,10 @@ cd kupi_slona
 
 ```bash
 # Create .env file from template
-cp .env.example .env.slon.prvms.ru
+cp .env.example .env
 
 # Edit the file
-nano .env.slon.prvms.ru
+nano .env
 ```
 
 **Required variables:**
@@ -326,7 +326,7 @@ docker-compose -f docker-compose.prod.yml exec redis redis-cli -a $REDIS_PASSWOR
 
 ```bash
 # Check DOMAIN and SSL_EMAIL in .env
-cat .env.slon.prvms.ru | grep -E "^DOMAIN=|^SSL_EMAIL="
+cat .env | grep -E "^DOMAIN=|^SSL_EMAIL="
 
 # Re-run init script
 ./init-letsencrypt.sh
@@ -358,8 +358,6 @@ docker-compose -f docker-compose.prod.yml restart web
 
 ## 📚 ADDITIONAL RESOURCES
 
-- **Production Plan:** [production-readiness-plan.md](/.claude/plans/production-readiness-plan.md)
-- **Deployment Guide:** [DEPLOYMENT.md](DEPLOYMENT.md)
 - **Environment Template:** [.env.example](.env.example)
 - **Health Check:** `https://your-domain.com/health/`
 - **Admin Panel:** `https://your-domain.com/admin/`

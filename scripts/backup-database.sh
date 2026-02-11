@@ -9,7 +9,7 @@ BACKUP_DIR="${BACKUP_DIR:-/backups/postgres}"
 RETENTION_DAYS="${RETENTION_DAYS:-7}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 PROJECT_DIR="${PROJECT_DIR:-/root/kupi_slona}"
-ENV_FILE="${ENV_FILE:-$PROJECT_DIR/.env.slon.prvms.ru}"
+ENV_FILE="${ENV_FILE:-$PROJECT_DIR/.env}"
 
 # Colors for output
 GREEN='\033[0;32m'
