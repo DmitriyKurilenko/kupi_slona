@@ -30,7 +30,10 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(docker-compose:*)",
-      "Bash(docker compose:*)"
+      "Bash(docker compose:*)",
+      "Bash(docker builder prune:*)",
+      "Bash(DEBUG=False docker compose up:*)",
+      "Bash(git ls-files:*)"
     ]
   }
 }
