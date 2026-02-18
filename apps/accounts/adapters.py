@@ -32,12 +32,10 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         # Check if email matches existing user
         if sociallogin.email_addresses:
             email = sociallogin.email_addresses[0].email
-            try:
-                from django.contrib.auth.models import User
-                user = User.objects.get(email=email)
+            from django.contrib.auth.models import User
+            user = User.objects.filter(email=email).first()
+            if user:
                 sociallogin.connect(request, user)
-            except User.DoesNotExist:
-                pass
 
     def populate_user(self, request, sociallogin, data):
         """Populate user with data from provider"""

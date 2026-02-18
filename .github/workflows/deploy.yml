@@ -52,7 +52,12 @@ jobs:
             docker compose -f docker-compose.prod.yml build web celery_worker
 
             echo "Starting services..."
-            docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml up -d --force-recreate web celery_worker
+
+            # Reload nginx to pick up config changes (mounted as volume)
+            echo "Reloading nginx..."
+            docker compose -f docker-compose.prod.yml exec -T nginx nginx -s reload || \
+              docker compose -f docker-compose.prod.yml restart nginx
 
             # Wait for services
             echo "Waiting for services to start..."

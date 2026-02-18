@@ -22,7 +22,7 @@
             <p class="mb-10 text-xl leading-8 text-gray-600">
                 Слон твоего цвета — это картина, которая существует в единственном экземпляре.
                 Из 16 миллионов оттенков каждый принадлежит только одному человеку.
-                Себе или в подарок — за 100 ₽.
+                Себе или в подарок.
             </p>
 
             <div class="flex flex-wrap items-center justify-center gap-4">
@@ -113,7 +113,7 @@
             <div class="relative text-center">
                 <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-600 text-2xl font-bold text-white shadow-lg">1</div>
                 <h3 class="mb-2 text-lg font-semibold text-gray-900">Выберите тариф</h3>
-                <p class="text-gray-600">Случайный цвет за 100 ₽ или выберите оттенок за 300 ₽</p>
+                <p class="text-gray-600">Случайный цвет за 99 ₽ или выберите оттенок за 199 ₽</p>
             </div>
             <div class="relative text-center">
                 <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-600 text-2xl font-bold text-white shadow-lg">2</div>
@@ -181,7 +181,7 @@
 
                 {% if user.is_authenticated %}
                     <button @click="buyBasic()" :disabled="loading" class="w-full rounded-xl bg-gray-900 px-6 py-4 text-base font-semibold text-white hover:bg-gray-800 disabled:opacity-50 transition">
-                        <span x-show="!loading">Испытать удачу за 100 ₽</span>
+                        <span x-show="!loading">Испытать удачу за 99 ₽</span>
                         <span x-show="loading">Загрузка...</span>
                     </button>
                 {% else %}
@@ -203,7 +203,7 @@
                     <h3 class="text-2xl font-bold">Мой оттенок</h3>
                     <p class="mt-2 text-indigo-100">Выберите палитру — мы найдём уникальный цвет внутри неё</p>
                     <div class="mt-6">
-                        <span class="text-5xl font-bold tracking-tight">300 ₽</span>
+                        <span class="text-5xl font-bold tracking-tight">199 ₽</span>
                     </div>
                 </div>
 
@@ -292,7 +292,7 @@
                         </div>
 
                         <button @click="buyAdvanced()" :disabled="loading || selectedHue === null" class="w-full rounded-xl bg-white px-6 py-4 text-base font-semibold text-indigo-600 hover:bg-gray-50 disabled:opacity-50 transition">
-                            <span x-show="!loading">Выбрать оттенок за 300 ₽</span>
+                            <span x-show="!loading">Выбрать оттенок за 199 ₽</span>
                             <span x-show="loading">Загрузка...</span>
                         </button>
                     </div>
@@ -331,7 +331,7 @@
                 <div class="text-xs text-gray-500">Навсегда закреплён за вами</div>
             </div>
             <div class="text-center">
-                <div class="mb-2 text-4xl font-bold text-pink-600">100 ₽</div>
+                <div class="mb-2 text-4xl font-bold text-pink-600">99 ₽</div>
                 <div class="text-sm font-medium text-gray-900">Стоимость уникальности</div>
                 <div class="text-xs text-gray-500">Дешевле чашки кофе</div>
             </div>
