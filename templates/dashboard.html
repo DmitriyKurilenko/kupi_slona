@@ -217,9 +217,9 @@
             </div>
             <h3 class="mb-2 text-2xl font-bold text-gray-900">У вас ещё нет слонов</h3>
             <p class="mb-6 text-gray-600">Купите своего первого уникального цветного слона!</p>
-            <a href="/" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl">
+            <button @click="showPurchase = true; window.scrollTo({top: 0, behavior: 'smooth'})" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl">
                 Купить слона
-            </a>
+            </button>
         </div>
 
         <!-- Elephants List -->
