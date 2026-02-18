@@ -17,10 +17,10 @@ class TariffAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     """Admin для заказов"""
-    list_display = ('id', 'user', 'tariff', 'status', 'desired_color', 'created_at', 'paid_at')
+    list_display = ('id', 'user', 'tariff', 'status', 'desired_color', 'yookassa_payment_id', 'created_at', 'paid_at')
     list_filter = ('status', 'tariff', 'created_at')
-    search_fields = ('user__username', 'user__email')
-    readonly_fields = ('id', 'created_at')
+    search_fields = ('user__username', 'user__email', 'yookassa_payment_id')
+    readonly_fields = ('id', 'created_at', 'yookassa_payment_id')
     date_hierarchy = 'created_at'
 
     fieldsets = (
@@ -30,6 +30,9 @@ class OrderAdmin(admin.ModelAdmin):
         ('Цвет', {
             'fields': ('desired_color',),
             'description': 'Только для advanced тарифа'
+        }),
+        ('Оплата', {
+            'fields': ('yookassa_payment_id',)
         }),
         ('Даты', {
             'fields': ('created_at', 'paid_at')

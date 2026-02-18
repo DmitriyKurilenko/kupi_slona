@@ -151,21 +151,8 @@ export function dashboard(config = {}) {
                 const desiredColor = tariff === 'advanced' ? `HUE:${this.selectedHue}` : null;
                 const data = await ordersAPI.create(tariff, desiredColor);
 
-                this.purchaseMessage = 'Заказ успешно создан! Генерация слона началась...';
-                this.purchaseMessageType = 'success';
-
-                // Hide purchase form
-                this.showPurchase = false;
-
-                // Reload data to show new order
-                await this.loadOrders();
-
-                // Clear message after 3 seconds
-                setTimeout(() => {
-                    this.purchaseMessage = '';
-                    // Reload elephants to show new elephant when ready
-                    this.loadElephants();
-                }, 3000);
+                // Redirect to YooKassa payment page
+                window.location.href = data.payment_url;
             } catch (error) {
                 console.error('Error:', error);
                 this.purchaseMessage = error.message || 'Произошла ошибка при создании заказа';

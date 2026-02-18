@@ -34,6 +34,12 @@ class OrderSchema(Schema):
     tariff: TariffSchema
 
 
+class PaymentInitSchema(Schema):
+    """Response after payment initiation (redirect to YooKassa)"""
+    order_id: int
+    payment_url: str
+
+
 class PaymentResponseSchema(Schema):
     """Схема ответа на оплату"""
     success: bool

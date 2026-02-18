@@ -33,8 +33,8 @@ export function tariffApp() {
                 const desiredColor = tariff === 'advanced' ? `HUE:${this.selectedHue}` : null;
                 const data = await ordersAPI.create(tariff, desiredColor);
 
-                this.showMessage('success', 'Заказ создан! Генерация слона началась. Перенаправляем в личный кабинет...');
-                setTimeout(() => window.location.href = '/dashboard/', 2000);
+                // Redirect to YooKassa payment page
+                window.location.href = data.payment_url;
             } catch (error) {
                 console.error('Order creation error:', error);
                 this.showMessage('error', error.message || 'Произошла ошибка');

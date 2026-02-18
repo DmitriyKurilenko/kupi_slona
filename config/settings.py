@@ -229,6 +229,11 @@ SOCIALACCOUNT_PROVIDERS = {
 ACCOUNT_ADAPTER = 'apps.accounts.adapters.AccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'apps.accounts.adapters.SocialAccountAdapter'
 
+# YooKassa Payment Settings
+YOOKASSA_SHOP_ID = env('YOOKASSA_SHOP_ID', default='')
+YOOKASSA_SECRET_KEY = env('YOOKASSA_SECRET_KEY', default='')
+YOOKASSA_RETURN_URL = env('YOOKASSA_RETURN_URL', default='https://slon.prvms.ru/payment/return/')
+
 # Reverse Proxy Settings (NPM, Traefik, etc)
 # Trust X-Forwarded-Proto header from reverse proxy
 USE_X_FORWARDED_HOST = env.bool('USE_X_FORWARDED_HOST', default=True)

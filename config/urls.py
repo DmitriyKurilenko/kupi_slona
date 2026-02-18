@@ -38,6 +38,7 @@ urlpatterns = [
     path('', include('apps.elephants.urls')),
     path('accounts/', include('apps.accounts.urls')),
     path('gift/', include('apps.gifts.urls')),
+    path('payment/', include('apps.payments.urls')),
     path('', include('apps.core.urls')),
 ]
 

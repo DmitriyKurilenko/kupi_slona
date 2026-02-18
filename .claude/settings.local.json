@@ -44,7 +44,8 @@
       "Bash(git push:*)",
       "Bash(git check-ignore:*)",
       "Bash(git -C /Users/hvosdt/Documents/dev/kupi_slona add static/fonts/inter-latin-400.woff2)",
-      "Bash(python manage.py makemigrations:*)"
+      "Bash(python manage.py makemigrations:*)",
+      "Bash(git log:*)"
     ]
   }
 }

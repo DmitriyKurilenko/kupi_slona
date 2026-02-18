@@ -55,6 +55,7 @@ class Order(models.Model):
         ("processing", "Генерация изображения"),
         ("completed", "Завершён"),
         ("failed", "Ошибка"),
+        ("cancelled", "Отменён"),
     ]
 
     user = models.ForeignKey(
@@ -80,6 +81,13 @@ class Order(models.Model):
         null=True,
         verbose_name="Желаемый цвет (HEX) или оттенок",
         help_text="Только для advanced тарифа, формат: #RRGGBB или HUE:XXX"
+    )
+    yookassa_payment_id = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        unique=True,
+        verbose_name="ID платежа YooKassa",
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
@@ -144,4 +152,9 @@ class Order(models.Model):
     def mark_as_failed(self):
         """Отметить заказ как проваленный"""
         self.status = "failed"
+        self.save(update_fields=['status'])
+
+    def mark_as_cancelled(self):
+        """Отметить заказ как отменённый"""
+        self.status = "cancelled"
         self.save(update_fields=['status'])

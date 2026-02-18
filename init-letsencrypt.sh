@@ -164,6 +164,16 @@ server {
         add_header Cache-Control "public";
     }
 
+    # YooKassa webhook (no rate limiting, must be accessible)
+    location /api/payments/webhook {
+        proxy_pass http://django;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_redirect off;
+    }
+
     location /api/ {
         limit_req zone=api burst=20 nodelay;
         limit_req_status 429;
