@@ -150,10 +150,11 @@ server {
     proxy_read_timeout 60s;
     client_body_buffer_size 128k;
 
+    # Static files
     location /static/ {
         alias /app/staticfiles/;
-        expires 30d;
-        add_header Cache-Control "public, immutable";
+        expires 1d;
+        add_header Cache-Control "public, must-revalidate";
     }
 
     location /media/ {
