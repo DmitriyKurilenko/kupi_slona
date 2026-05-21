@@ -151,11 +151,23 @@ export function dashboard(config = {}) {
                 const desiredColor = tariff === 'advanced' ? `HUE:${this.selectedHue}` : null;
                 const data = await ordersAPI.create(tariff, desiredColor);
 
+                console.log('Order created, payment data:', data);
+
+                if (!data || !data.payment_url) {
+                    throw new Error('Сервис оплаты вернул пустой адрес. Обратитесь в поддержку.');
+                }
+
                 // Redirect to YooKassa payment page
                 window.location.href = data.payment_url;
             } catch (error) {
                 console.error('Error:', error);
-                this.purchaseMessage = error.message || 'Произошла ошибка при создании заказа';
+
+                let msg = error.message || 'Произошла ошибка при создании заказа';
+                if (msg.includes('503') || msg.includes('Service Unavailable') || msg.includes('недоступен')) {
+                    msg = 'Сервис оплаты временно недоступен. Попробуйте позже или обратитесь к администратору.';
+                }
+
+                this.purchaseMessage = msg;
                 this.purchaseMessageType = 'error';
             } finally {
                 this.purchaseLoading = false;

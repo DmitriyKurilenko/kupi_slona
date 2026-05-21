@@ -7,7 +7,6 @@ import uuid
 
 from django.conf import settings
 from django.db import transaction
-from yookassa import Configuration, Payment
 
 from .models import Order
 from apps.elephants.tasks import generate_elephant_image
@@ -15,10 +14,36 @@ from apps.elephants.tasks import generate_elephant_image
 logger = logging.getLogger('apps')
 
 
+class YooKassaConfigError(Exception):
+    """Raised when YooKassa credentials are missing or invalid."""
+    pass
+
+
+class YooKassaAPIError(Exception):
+    """Raised when YooKassa API returns an error."""
+    def __init__(self, message, status_code=None, raw_response=None):
+        super().__init__(message)
+        self.status_code = status_code
+        self.raw_response = raw_response
+
+
 def _configure_yookassa():
-    """Configure YooKassa SDK with shop credentials"""
-    Configuration.account_id = settings.YOOKASSA_SHOP_ID
-    Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
+    """Configure YooKassa SDK with shop credentials."""
+    shop_id = getattr(settings, 'YOOKASSA_SHOP_ID', None)
+    secret_key = getattr(settings, 'YOOKASSA_SECRET_KEY', None)
+
+    if not shop_id or not secret_key:
+        raise YooKassaConfigError(
+            "YooKassa credentials are not configured. "
+            "Set YOOKASSA_SHOP_ID and YOOKASSA_SECRET_KEY environment variables."
+        )
+
+    try:
+        from yookassa import Configuration
+        Configuration.account_id = str(shop_id)
+        Configuration.secret_key = str(secret_key)
+    except Exception as e:
+        raise YooKassaConfigError(f"Failed to configure YooKassa SDK: {e}")
 
 
 def create_yookassa_payment(order: Order) -> str:
@@ -33,7 +58,8 @@ def create_yookassa_payment(order: Order) -> str:
 
     Raises:
         ValueError: If order is not in pending status
-        Exception: If YooKassa API call fails
+        YooKassaConfigError: If YooKassa credentials are not configured
+        YooKassaAPIError: If YooKassa API call fails
     """
     if order.status != 'pending':
         raise ValueError(f"Order #{order.id} is not in pending status")
@@ -45,7 +71,7 @@ def create_yookassa_payment(order: Order) -> str:
 
     tariff_display = order.tariff.get_name_display()
 
-    payment = Payment.create({
+    payload = {
         "amount": {
             "value": str(order.tariff.price),
             "currency": "RUB"
@@ -55,19 +81,46 @@ def create_yookassa_payment(order: Order) -> str:
             "return_url": f"{settings.YOOKASSA_RETURN_URL}?order_id={order.id}"
         },
         "capture": True,
-        "description": f"Слон — тариф «{tariff_display}»",
+        "description": f"Слон — тариф «{tariff_display}»"[:128],
         "metadata": {
             "order_id": order.id
         }
-    }, idempotency_key)
+    }
+
+    try:
+        from yookassa import Payment
+        payment = Payment.create(payload, idempotency_key)
+    except Exception as e:
+        error_name = type(e).__name__
+        error_msg = str(e)
+        logger.exception(
+            f"YooKassa API error ({error_name}) creating payment for order #{order.id}: {error_msg}"
+        )
+        raw = getattr(e, 'json_body', None) or getattr(e, 'raw_response', None)
+        raise YooKassaAPIError(
+            message=f"Payment gateway error: {error_msg}",
+            raw_response=raw
+        )
+
+    if not payment or not getattr(payment, 'confirmation', None):
+        logger.error(f"YooKassa returned invalid payment object for order #{order.id}")
+        raise YooKassaAPIError("YooKassa returned invalid payment object")
+
+    confirmation_url = getattr(payment.confirmation, 'confirmation_url', None)
+    if not confirmation_url:
+        logger.error(f"YooKassa did not return confirmation_url for order #{order.id}")
+        raise YooKassaAPIError("YooKassa did not return confirmation_url")
 
     # Save YooKassa payment ID to order
     order.yookassa_payment_id = payment.id
     order.save(update_fields=['yookassa_payment_id'])
 
-    logger.info(f"YooKassa payment {payment.id} created for order #{order.id}")
+    logger.info(
+        f"YooKassa payment {payment.id} created for order #{order.id}, "
+        f"redirect URL: {confirmation_url}"
+    )
 
-    return payment.confirmation.confirmation_url
+    return confirmation_url
 
 
 def process_yookassa_webhook(body: bytes) -> bool:
@@ -81,7 +134,12 @@ def process_yookassa_webhook(body: bytes) -> bool:
     Returns:
         True if processed successfully
     """
-    data = json.loads(body)
+    try:
+        data = json.loads(body)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid webhook JSON: {e}")
+        return False
+
     event_type = data.get('event')
     payment_data = data.get('object', {})
     payment_id = payment_data.get('id')
@@ -138,12 +196,21 @@ def check_payment_status(order: Order) -> str:
         order: Order instance with yookassa_payment_id
 
     Returns:
-        Payment status string from YooKassa
+        Payment status string from YooKassa or 'unknown'
     """
     if not order.yookassa_payment_id:
         return 'unknown'
 
-    _configure_yookassa()
+    try:
+        _configure_yookassa()
+    except YooKassaConfigError:
+        logger.error("Cannot check payment status: YooKassa not configured")
+        return 'unknown'
 
-    payment = Payment.find_one(order.yookassa_payment_id)
-    return payment.status
+    try:
+        from yookassa import Payment
+        payment = Payment.find_one(order.yookassa_payment_id)
+        return payment.status
+    except Exception as e:
+        logger.exception(f"Failed to check payment status for order #{order.id}: {e}")
+        return 'unknown'

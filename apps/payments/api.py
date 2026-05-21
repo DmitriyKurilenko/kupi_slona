@@ -10,7 +10,10 @@ from django.http import HttpRequest
 from .models import Tariff, Order
 from .services import get_active_tariffs, create_order, get_user_orders, get_order_by_id
 from .schemas import TariffSchema, CreateOrderSchema, OrderSchema, PaymentInitSchema, PaymentResponseSchema
-from .yookassa_service import create_yookassa_payment, process_yookassa_webhook
+from .yookassa_service import (
+    create_yookassa_payment, process_yookassa_webhook,
+    YooKassaConfigError, YooKassaAPIError,
+)
 from apps.accounts.schemas import MessageSchema
 from apps.core.auth import auth
 
@@ -26,7 +29,7 @@ def list_tariffs(request):
     return list(tariffs)
 
 
-@router.post("/orders", response={201: PaymentInitSchema, 400: MessageSchema, 401: MessageSchema}, auth=auth)
+@router.post("/orders", response={201: PaymentInitSchema, 400: MessageSchema, 401: MessageSchema, 503: MessageSchema}, auth=auth)
 def create_new_order(request, payload: CreateOrderSchema):
     """Создать заказ и инициировать оплату через YooKassa"""
     try:
@@ -47,12 +50,20 @@ def create_new_order(request, payload: CreateOrderSchema):
         return 400, {"message": "Тариф не найден"}
     except ValidationError as e:
         return 400, {"message": str(e)}
-    except Exception as e:
-        logger.error(f"Order creation error: {e}")
+    except ValueError as e:
         return 400, {"message": str(e)}
+    except YooKassaConfigError as e:
+        logger.error(f"YooKassa configuration error: {e}")
+        return 503, {"message": "Сервис оплаты временно недоступен. Обратитесь к администратору."}
+    except YooKassaAPIError as e:
+        logger.error(f"YooKassa API error: {e}")
+        return 503, {"message": "Ошибка платёжной системы. Попробуйте позже."}
+    except Exception as e:
+        logger.exception(f"Unexpected order creation error: {e}")
+        return 503, {"message": "Внутренняя ошибка сервера. Попробуйте позже."}
 
 
-@router.post("/orders/{order_id}/pay", response={200: PaymentInitSchema, 400: MessageSchema, 401: MessageSchema, 403: MessageSchema, 404: MessageSchema}, auth=auth)
+@router.post("/orders/{order_id}/pay", response={200: PaymentInitSchema, 400: MessageSchema, 401: MessageSchema, 403: MessageSchema, 404: MessageSchema, 503: MessageSchema}, auth=auth)
 def pay_order(request, order_id: int):
     """Повторная инициация оплаты для pending заказа"""
     try:
@@ -72,9 +83,17 @@ def pay_order(request, order_id: int):
         return 404, {"message": "Заказ не найден"}
     except PermissionError:
         return 403, {"message": "Доступ запрещён"}
-    except Exception as e:
-        logger.error(f"Payment initiation error: {e}")
+    except ValueError as e:
         return 400, {"message": str(e)}
+    except YooKassaConfigError as e:
+        logger.error(f"YooKassa configuration error: {e}")
+        return 503, {"message": "Сервис оплаты временно недоступен. Обратитесь к администратору."}
+    except YooKassaAPIError as e:
+        logger.error(f"YooKassa API error: {e}")
+        return 503, {"message": "Ошибка платёжной системы. Попробуйте позже."}
+    except Exception as e:
+        logger.exception(f"Unexpected payment initiation error: {e}")
+        return 503, {"message": "Внутренняя ошибка сервера. Попробуйте позже."}
 
 
 @router.post("/payments/webhook", response={200: dict})
@@ -83,7 +102,7 @@ def yookassa_webhook(request: HttpRequest):
     try:
         process_yookassa_webhook(request.body)
     except Exception as e:
-        logger.error(f"Webhook processing error: {e}")
+        logger.exception(f"Webhook processing error: {e}")
     # Always return 200 to prevent YooKassa from retrying
     return 200, {"status": "ok"}
 

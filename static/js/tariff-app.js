@@ -33,11 +33,24 @@ export function tariffApp() {
                 const desiredColor = tariff === 'advanced' ? `HUE:${this.selectedHue}` : null;
                 const data = await ordersAPI.create(tariff, desiredColor);
 
+                console.log('Order created, payment data:', data);
+
+                if (!data || !data.payment_url) {
+                    throw new Error('Сервис оплаты вернул пустой адрес. Обратитесь в поддержку.');
+                }
+
                 // Redirect to YooKassa payment page
                 window.location.href = data.payment_url;
             } catch (error) {
                 console.error('Order creation error:', error);
-                this.showMessage('error', error.message || 'Произошла ошибка');
+
+                let msg = error.message || 'Произошла ошибка';
+                // Provide user-friendly messages for known backend errors
+                if (msg.includes('503') || msg.includes('Service Unavailable') || msg.includes('недоступен')) {
+                    msg = 'Сервис оплаты временно недоступен. Попробуйте позже или обратитесь к администратору.';
+                }
+
+                this.showMessage('error', msg);
                 this.loading = false;
             }
         },
